@@ -22,11 +22,11 @@ const DoctorDashboard = () => {
         try {
             setLoading(true);
             // 1. Get Doctor Profile
-            const profileRes = await axios.get('http://localhost:5000/api/doctors/me');
+            const profileRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/doctors/me`);
             const doctorId = profileRes.data._id;
 
             // 2. Get Appointments
-            const aptRes = await axios.get(`http://localhost:5000/api/appointments/doctor/${doctorId}`);
+            const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/doctor/${doctorId}`);
             setAppointments(aptRes.data);
             
             setStats({
@@ -51,7 +51,7 @@ const DoctorDashboard = () => {
         if (!rawNotes.trim()) return;
         setIsAILoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/ai/structure-notes', { rawNotes });
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ai/structure-notes`, { rawNotes });
             setStructuredNotes(res.data.structuredNotes);
         } catch (err) {
             setStructuredNotes("Subjective: Patient reports mild cough and low fever (3 days).\nObjective: Pharyngeal erythema present. Temp 100.2F.\nAssessment: Acute viral pharyngitis.\nPlan: Paracetamol 650mg TDS, hydration, follow up.");

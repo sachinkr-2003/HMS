@@ -9,7 +9,7 @@ const useSocket = (department) => {
     const socketRef = useRef();
 
     useEffect(() => {
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
 
         if (department) {
             socketRef.current.emit('join_department', department);

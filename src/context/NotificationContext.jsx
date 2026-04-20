@@ -12,7 +12,7 @@ export const NotificationProvider = ({ children }) => {
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:5000');
+        const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
         setSocket(newSocket);
 
         return () => newSocket.close();
