@@ -31,19 +31,11 @@ const Login = () => {
         try {
             const userData = await login(formData.email, formData.password);
             
-            // Institutional Protocol: Strict Role Validation
-            if (userData.role !== selectedRole.id) {
-                // If role mismatch, we must invalidate the login attempt for that role area
-                setError(`Access Denied: Your account role (${userData.role}) does not match the selected area (${selectedRole.id}).`);
-                // Note: The AuthContext might have already set the user, so we should handle that
-                // For now, we block the navigation and show the error.
-                return;
-            }
-
-            // Valid orientation: Navigate to correct dashboard
-            navigate(`/${selectedRole.id}`);
+            // Direct Login Logic: Ignore role selector mismatch and go to the real role
+            // This ensures a "Direct Login" experience without permission blocks.
+            navigate(`/${userData.role}`);
+            
         } catch (err) {
-            // Error is handled by context, but we ensure UI feedback
             console.error("Authentication Blocked:", err);
         } finally {
             setIsSubmitting(false);

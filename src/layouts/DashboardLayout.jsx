@@ -133,10 +133,7 @@ const DashboardLayout = ({ children }) => {
 
       {/* Global AI Assistant - Floating */}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3">
-          <button className="w-12 h-12 bg-gray-900 text-white rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group relative">
-              <Mic size={20} />
-              <span className="absolute right-14 bg-gray-900 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap uppercase tracking-widest border border-gray-800 shadow-2xl">Voice-Enabled EMR</span>
-          </button>
+
           <button 
               onClick={() => setShowAIChat(!showAIChat)}
               className="w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:rotate-12 transition-all relative group"
