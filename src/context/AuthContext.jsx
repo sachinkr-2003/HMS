@@ -3,7 +3,18 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth`;
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) return envUrl;
+  
+  // If in production (Vercel), default to relative path or try to guess
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/api'; 
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_URL = `${getApiBaseUrl()}/auth`;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
