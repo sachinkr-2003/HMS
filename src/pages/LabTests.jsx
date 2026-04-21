@@ -70,7 +70,7 @@ const LabTests = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Authorize SKU Deletion?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/lab/${id}`);
+        await axios.delete(`https://hms-backend-1-uchi.onrender.com/api/lab/${id}`);
         await fetchTests();
       } catch (err) {
         alert("Deletion Authorization Denied.");

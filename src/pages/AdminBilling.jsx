@@ -9,7 +9,7 @@ const AdminBilling = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/dashboard/admin-stats');
+                const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/dashboard/admin-stats');
                 setStats(res.data);
                 setLoading(false);
             } catch (err) {

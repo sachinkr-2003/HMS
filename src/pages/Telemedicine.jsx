@@ -18,7 +18,7 @@ const Telemedicine = () => {
 
     const fetchCalls = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/telemedicine');
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'https://hms-backend-1-uchi.onrender.com/api'}/telemedicine`);
             setScheduledCalls(res.data);
         } catch (err) {
             console.error("Failed to fetch tele-consultations");

@@ -27,7 +27,7 @@ const DoctorPrescriptions = () => {
   const searchPatients = async () => {
     setIsSearching(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/patients?search=${searchQuery}`);
+      const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/patients?search=${searchQuery}`);
       setPatients(res.data);
     } catch (err) {
       console.error("Patient search failed");
@@ -67,7 +67,7 @@ const DoctorPrescriptions = () => {
         visitDate: new Date()
       };
 
-      await axios.post('http://localhost:5000/api/medical-records', prescriptionData);
+      await axios.post('https://hms-backend-1-uchi.onrender.com/api/medical-records', prescriptionData);
       
       alert(`Smart Billing Sync Complete: ₹${totalEstimate} record generated for ${selectedPatient.name}.`);
       // Reset form

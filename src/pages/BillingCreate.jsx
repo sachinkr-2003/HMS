@@ -31,7 +31,7 @@ const BillingCreate = () => {
     const searchPatients = async () => {
         setIsSearching(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/patients?search=${searchQuery}`);
+            const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/patients?search=${searchQuery}`);
             setPatients(res.data);
         } catch (err) {
             console.error("Search failed");
@@ -66,7 +66,7 @@ const BillingCreate = () => {
                 totalAmount: finalTotal,
                 status: 'Unpaid'
             };
-            const res = await axios.post('http://localhost:5000/api/billing', billData);
+            const res = await axios.post('https://hms-backend-1-uchi.onrender.com/api/billing', billData);
             setBillSuccess(res.data);
             setIsSaving(false);
         } catch (err) {
@@ -244,7 +244,7 @@ const BillingCreate = () => {
                                 <button 
                                     onClick={async () => {
                                         try {
-                                            const res = await axios.get(`http://localhost:5000/api/medical-records/patient/${selectedPatient._id}`);
+                                            const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/medical-records/patient/${selectedPatient._id}`);
                                             const latestRecord = res.data[0];
                                             if (latestRecord && latestRecord.prescriptions.length > 0) {
                                                 const prescribedItems = latestRecord.prescriptions.map(p => ({

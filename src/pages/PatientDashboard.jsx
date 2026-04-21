@@ -25,7 +25,7 @@ const PatientDashboard = () => {
         setIsTyping(true);
 
         try {
-            const res = await axios.post('http://localhost:5000/api/ai/chat', { query: userMsg.content });
+            const res = await axios.post('https://hms-backend-1-uchi.onrender.com/api/ai/chat', { query: userMsg.content });
             setChatHistory(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
         } catch (err) {
             setChatHistory(prev => [...prev, { role: 'assistant', content: "AI system is currently unavailable. Please try later." }]);

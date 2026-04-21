@@ -9,7 +9,7 @@ const useSocket = (department) => {
     const socketRef = useRef();
 
     useEffect(() => {
-        socketRef.current = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
+        socketRef.current = io(import.meta.env.VITE_SOCKET_URL || 'https://hms-backend-1-uchi.onrender.com');
 
         if (department) {
             socketRef.current.emit('join_department', department);

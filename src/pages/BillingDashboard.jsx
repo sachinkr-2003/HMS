@@ -13,7 +13,7 @@ const BillingDashboard = () => {
     useEffect(() => {
         const fetchBills = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/billing');
+                const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/billing');
                 setBills(res.data);
                 setLoading(false);
             } catch (err) {

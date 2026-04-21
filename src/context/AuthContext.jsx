@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth`;
+const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'https://hms-backend-1-uchi.onrender.com/api'}/auth`;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

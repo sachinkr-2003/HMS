@@ -16,7 +16,7 @@ const WardBeds = () => {
 
     const fetchBeds = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/beds');
+            const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/beds');
             setBeds(res.data);
             setLoading(false);
         } catch (err) {
@@ -27,7 +27,7 @@ const WardBeds = () => {
 
     const handleDischarge = async (id) => {
         try {
-            await axios.put(`http://localhost:5000/api/beds/${id}/discharge`);
+            await axios.put(`https://hms-backend-1-uchi.onrender.com/api/beds/${id}/discharge`);
             fetchBeds();
         } catch (err) {
             console.error("Discharge failed");
