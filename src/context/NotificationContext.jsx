@@ -12,34 +12,24 @@ export const NotificationProvider = ({ children }) => {
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
-        const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
-        setSocket(newSocket);
+        if (user) {
+            const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
+            setSocket(newSocket);
 
-        return () => newSocket.close();
-    }, []);
+            newSocket.on('connect', () => {
+                newSocket.emit('join_department', user.role);
+                newSocket.emit('join_department', 'global');
+            });
 
-    useEffect(() => {
-        if (socket && user) {
-            // Join specific role/department channel
-            socket.emit('join_department', user.role);
-            // Also join a global channel for system-wide announcements
-            socket.emit('join_department', 'global');
-
-            socket.on('new_alert', (alert) => {
+            newSocket.on('new_alert', (alert) => {
                 const alertWithId = { ...alert, id: Date.now(), timestamp: new Date() };
                 setAlerts((prev) => [alertWithId, ...prev]);
                 setUnreadCount((prev) => prev + 1);
-                
-                // Show browser notification if permitted
-                if (Notification.permission === 'granted') {
-                    new Notification(`Institutional Alert: ${alert.type}`, {
-                        body: alert.message,
-                        icon: '/logo.png'
-                    });
-                }
             });
+
+            return () => newSocket.close();
         }
-    }, [socket, user]);
+    }, [user]);
 
     const markAsRead = () => {
         setUnreadCount(0);

@@ -165,10 +165,12 @@ const Login = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">System Reference (ID)</label>
+                                <label htmlFor="email" className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">Email Address</label>
                                 <div className="relative group">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                                     <input
+                                        id="email"
+                                        name="email"
                                         type="email"
                                         required
                                         placeholder={`Ref: name@${selectedRole.id}.com`}
@@ -183,10 +185,12 @@ const Login = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">Private Hash (Password)</label>
+                                <label htmlFor="password" className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">Password</label>
                                 <div className="relative group">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-600 transition-colors" size={16} />
                                     <input
+                                        id="password"
+                                        name="password"
                                         type={showPassword ? "text" : "password"}
                                         required
                                         placeholder="••••••••"
@@ -230,7 +234,7 @@ const Login = () => {
                         <div className="mt-12 text-center border-t border-gray-100 pt-10">
                             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest leading-loose">
                                 Warning: Unauthorized Access Prohibited <br /> 
-                                <span className="text-gray-300 underline decoration-gray-200">Identity Audit Protocols Active</span>
+                                <span className="text-gray-300">Secure Institutional Access Terminal</span>
                             </p>
                         </div>
                     </div>
