@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Calendar, Clock, User, 
     ArrowLeftRight, Filter, Download, 
@@ -17,7 +17,7 @@ const StaffRoster = () => {
 
     const fetchRoster = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/roster?date=${viewDate.toISOString()}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/roster?date=${viewDate.toISOString()}`);
             setRosterData(res.data);
         } catch (err) {
             console.error("Failed to fetch roster");

@@ -50,14 +50,8 @@ const Login = () => {
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleSubmit(e);
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex font-['Inter'] selection:bg-blue-100">
+        <div className="min-h-screen w-full flex bg-white font-inter">
             {/* Split Screen Layout - Pure Flex for Stability */}
             <div className="w-full flex flex-col lg:flex-row min-h-screen">
 
@@ -131,7 +125,7 @@ const Login = () => {
                             </div>
                         )}
 
-                        <div className="mt-10 space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-5">
                             {/* Role Select */}
                             <div className="space-y-1.5 relative">
                                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-0.5">Authorization Area</label>
@@ -186,7 +180,6 @@ const Login = () => {
                                             setFormData({ ...formData, email: e.target.value });
                                             if(error) setError(null);
                                         }}
-                                        onKeyDown={handleKeyDown}
                                     />
                                 </div>
                             </div>
@@ -207,7 +200,6 @@ const Login = () => {
                                             setFormData({ ...formData, password: e.target.value });
                                             if(error) setError(null);
                                         }}
-                                        onKeyDown={handleKeyDown}
                                     />
                                     <button
                                         type="button"
@@ -227,21 +219,17 @@ const Login = () => {
                             </div>
 
                             <button
-                                type="button"
-                                onClick={handleSubmit}
+                                type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-blue-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                                className="w-full py-3.5 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-[0.1em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 active:scale-[0.98] flex items-center justify-center gap-2 disabled:bg-gray-200"
                             >
                                 {isSubmitting ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <><Loader2 className="animate-spin" size={16} /> Authenticating...</>
                                 ) : (
-                                    <>
-                                        INITIATE LOGIN
-                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                    </>
+                                    <>Initiate Login <ArrowRight size={16} /></>
                                 )}
                             </button>
-                        </div>
+                        </form>
 
                         <div className="mt-12 text-center border-t border-gray-100 pt-10">
                             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest leading-loose">

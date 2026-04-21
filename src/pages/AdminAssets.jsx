@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Activity, Shield, AlertCircle, 
     Wrench, Truck, Calendar, 
@@ -17,7 +17,7 @@ const AdminAssets = () => {
 
     const fetchAssets = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/assets');
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/assets`);
             setAssets(res.data);
         } catch (err) {
             console.error("Failed to fetch assets");
