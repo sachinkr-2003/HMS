@@ -16,9 +16,11 @@ import AdminLab from './pages/AdminLab';
 import AdminBeds from './pages/AdminBeds';
 import AdminReports from './pages/AdminReports';
 import AdminSettings from './pages/AdminSettings';
+import AdminAssets from './pages/AdminAssets';
 import DoctorDashboard from './pages/DoctorDashboard';
 import DoctorAppointments from './pages/DoctorAppointments';
 import DoctorPatients from './pages/DoctorPatients';
+import PatientHistory from './pages/PatientHistory';
 import DoctorPrescriptions from './pages/DoctorPrescriptions';
 import DoctorReports from './pages/DoctorReports';
 import PharmacyDashboard from './pages/PharmacyDashboard';
@@ -53,7 +55,9 @@ import PatientSupport from './pages/PatientSupport';
 import StaffDashboard from './pages/StaffDashboard';
 import ProfileSettings from './pages/ProfileSettings';
 import StaffAttendance from './pages/StaffAttendance';
+import StaffRoster from './pages/StaffRoster';
 import StaffMetrics from './pages/StaffMetrics';
+import Telemedicine from './pages/Telemedicine';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
@@ -107,6 +111,8 @@ const AppContent = () => {
                   <Route path="/" element={<DoctorDashboard />} />
                   <Route path="/appointments" element={<DoctorAppointments />} />
                   <Route path="/patients" element={<DoctorPatients />} />
+                  <Route path="/patients/:id/history" element={<PatientHistory />} />
+                  <Route path="/telemedicine" element={<Telemedicine />} />
                   <Route path="/prescriptions" element={<DoctorPrescriptions />} />
                   <Route path="/reports" element={<DoctorReports />} />
                   <Route path="/settings" element={<ProfileSettings />} />
@@ -158,6 +164,8 @@ const AppContent = () => {
                   <Route path="/admissions" element={<WardAdmissions />} />
                   <Route path="/discharge" element={<WardDischarge />} />
                   <Route path="/analytics" element={<WardAnalytics />} />
+                  <Route path="/assets" element={<AdminAssets />} />
+                  <Route path="/roster" element={<StaffRoster />} />
                   <Route path="/settings" element={<ProfileSettings />} />
                 </Routes>
               </DashboardLayout>
@@ -206,7 +214,9 @@ const AppContent = () => {
                 <Routes>
                   <Route path="/" element={<StaffDashboard />} />
                   <Route path="/attendance" element={<StaffAttendance />} />
+                  <Route path="/roster" element={<StaffRoster />} />
                   <Route path="/metrics" element={<StaffMetrics />} />
+                  <Route path="/assets" element={<AdminAssets />} />
                   <Route path="/settings" element={<ProfileSettings />} />
                 </Routes>
               </DashboardLayout>

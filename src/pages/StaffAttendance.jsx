@@ -14,8 +14,8 @@ const StaffAttendance = () => {
       {/* Classic Header Block - Right Shifted */}
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Institutional Attendance Register</h1>
-          <p className="text-xs text-gray-500 font-medium mt-1">Official terminal for staff shift authorization, chronological clock-ins & workforce availability Surveillance.</p>
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Staff Attendance Register</h1>
+          <p className="text-xs text-gray-500 font-medium mt-1">Manage staff shifts, clock-ins, and daily availability records.</p>
         </div>
         <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded text-[9px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer hover:bg-gray-50 transition-all">
             <Calendar size={12} className="text-blue-600" /> Current Cycle: Today
@@ -25,10 +25,10 @@ const StaffAttendance = () => {
       {/* Compact High-D Attendance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-              { label: 'Total Workforce On-Strength', val: '42', icon: UserCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
-              { label: 'Active Personnel (Present)', val: '38', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { label: 'Variance Identified (Late)', val: '02', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-              { label: 'Non-Availability (Absent)', val: '02', icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50' }
+              { label: 'Total Staff', val: '42', icon: UserCheck, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Present Today', val: '38', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+              { label: 'Late Arrivals', val: '02', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: 'Absent Today', val: '02', icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50' }
           ].map((m, i) => (
               <div key={i} className="bg-white p-5 border border-gray-200 rounded-lg shadow-sm flex flex-col justify-between min-h-[110px] hover:border-blue-400 transition-all group">
                   <div className="flex justify-between items-start">
@@ -37,7 +37,7 @@ const StaffAttendance = () => {
                       </div>
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest truncate ml-2">{m.label}</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 tracking-tight mt-2">{m.val} UNITS</h3>
+                  <h3 className="text-xl font-bold text-gray-800 tracking-tight mt-2">{m.val} Staff Members</h3>
               </div>
           ))}
       </div>
@@ -49,7 +49,7 @@ const StaffAttendance = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold" size={14} />
             <input 
               type="text" 
-              placeholder="Query Attendance Archives by RID or Full Name..." 
+              placeholder="Search staff by name or ID..." 
               className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded outline-none text-[10px] font-bold text-gray-700 uppercase focus:border-blue-400 tracking-tighter" 
             />
           </div>
@@ -62,12 +62,8 @@ const StaffAttendance = () => {
           <table className="w-full text-left">
             <thead className="bg-gray-50 text-gray-400 text-[10px] uppercase font-bold tracking-widest border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4">RID (Serial)</th>
-                <th className="px-6 py-4">Personnel Identity</th>
-                <th className="px-6 py-4">Assigned Shift Vector</th>
-                <th className="px-6 py-4">Clock-In Timestamp</th>
-                <th className="px-6 py-4 text-center">Lifecycle State</th>
-                <th className="px-6 py-4 text-right">Ops</th>
+                <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 font-inter">
@@ -112,9 +108,9 @@ const StaffAttendance = () => {
           <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-between">
                <div>
                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Staff On Floor</p>
-                   <h3 className="text-xl font-bold text-gray-800 tracking-tight mt-1">38 Authorized Units</h3>
+                   <h3 className="text-xl font-bold text-gray-800 tracking-tight mt-1">38 People Present</h3>
                </div>
-               <button className="px-5 py-2 bg-gray-900 text-white rounded text-[9px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-all">Export Shift Ledger</button>
+               <button className="px-5 py-2 bg-gray-900 text-white rounded text-[9px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-all">Download Attendance</button>
           </div>
       </div>
     </div>

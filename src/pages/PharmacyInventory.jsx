@@ -1,295 +1,233 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Plus, Filter, Edit, Trash2, Package, Calendar, Download, X, Loader2, AlertCircle } from 'lucide-react';
-import { formatCurrency, formatDate } from '../utils/formatters';
+import Swal from 'sweetalert2';
+import { 
+    Search, 
+    Plus, 
+    Edit, 
+    Trash2, 
+    Loader2, 
+    Package, 
+    Calendar, 
+    X, 
+    AlertCircle,
+    ArrowRight,
+    Pill
+} from 'lucide-react';
 
 const PharmacyInventory = () => {
-  const [inventory, setInventory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    batch: '',
-    category: 'General',
-    stock: '',
-    expiryDate: '',
-    price: ''
-  });
+    const [inventory, setInventory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        category: 'Tablet',
+        price: '',
+        stock: '',
+        expiryDate: ''
+    });
 
-  const fetchInventory = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/pharmacy');
-      setInventory(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error("API Failure:", err);
-      setInventory([]); // Institutional fallback: Empty state
-      setLoading(false);
-    }
-  };
+    const fetchInventory = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`);
+            setInventory(res.data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Inventory Sync Error");
+            setLoading(false);
+        }
+    };
 
-  useEffect(() => {
-    fetchInventory();
-  }, []);
+    useEffect(() => {
+        fetchInventory();
+    }, []);
 
-  const handleOpenModal = (item = null) => {
-    if (item) {
-      setEditingItem(item);
-      setFormData({
-        name: item.name,
-        batch: item.batch,
-        category: item.category,
-        stock: item.stock,
-        expiryDate: item.expiryDate ? item.expiryDate.split('T')[0] : '',
-        price: item.price
-      });
-    } else {
-      setEditingItem(null);
-      setFormData({ name: '', batch: '', category: 'General', stock: '', expiryDate: '', price: '' });
-    }
-    setShowModal(true);
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`, formData);
+            Swal.fire({
+                icon: 'success',
+                title: 'Inventory Updated',
+                text: `${formData.name} successfully registered in system.`,
+                confirmButtonColor: '#2563eb'
+            });
+            setShowForm(false);
+            setFormData({ name: '', category: 'Tablet', price: '', stock: '', expiryDate: '' });
+            fetchInventory();
+        } catch (err) {
+            Swal.fire('Error', 'Failed to update ledger.', 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      if (editingItem) {
-        await axios.put(`http://localhost:5000/api/pharmacy/${editingItem._id}/stock`, { stock: formData.stock });
-      } else {
-        await axios.post('http://localhost:5000/api/pharmacy', formData);
-      }
-      await fetchInventory();
-      setShowModal(false);
-    } catch (err) {
-      alert("Institutional Request Failed. Service is syncing.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: 'Authorize Deletion?',
+            text: "This SKU will be decommissioned permanently.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'Confirm Delete'
+        });
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Authorize SKU Deletion?")) {
-      try {
-        await axios.delete(`http://localhost:5000/api/pharmacy/${id}`);
-        await fetchInventory();
-      } catch (err) {
-        alert("Deletion Authorization Denied.");
-      }
-    }
-  };
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/pharmacy/${id}`);
+                fetchInventory();
+                Swal.fire('Decommissioned!', 'Item removed from ledger.', 'success');
+            } catch (err) {
+                Swal.fire('Error', 'Action denied.', 'error');
+            }
+        }
+    };
 
-  if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
+    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-      {/* Classic Header Block - Right Shifted */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Medicine Inventory</h1>
-          <p className="text-xs text-gray-500 font-medium mt-1">Official master stock register, batch monitoring & pricing controller.</p>
-        </div>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-[11px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
-        >
-          <Plus size={16} /> New SKU Entry
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        {/* Unified Search & Control Bar */}
-        <div className="p-4 border-b border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-4 bg-gray-50/50">
-          <div className="relative flex-1 w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold" size={16} />
-            <input 
-              type="text" 
-              placeholder="Query SKU by name, batch identity..." 
-              className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-md outline-none text-xs font-bold text-gray-700 focus:border-blue-400 transition-all" 
-            />
-          </div>
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-            <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 rounded border border-gray-200 transition-colors">
-              <Filter size={14} /> Refine View
-            </button>
-            <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 text-gray-500 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 rounded border border-gray-200 transition-colors">
-              <Download size={14} /> Export XLS
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-400 text-[10px] uppercase font-bold tracking-widest border-b border-gray-100">
-              <tr>
-                <th className="px-6 py-4">Clinical ID</th>
-                <th className="px-6 py-4">Drug Specification</th>
-                <th className="px-6 py-4">Batch Identity</th>
-                <th className="px-6 py-4">Stock Ledger</th>
-                <th className="px-6 py-4">Expiry Data</th>
-                <th className="px-6 py-4">Unit Price</th>
-                <th className="px-6 py-4 text-right">Operations</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {inventory.map((item) => (
-                <tr key={item._id} className="hover:bg-blue-50/30 transition-colors group">
-                  <td className="px-6 py-4 text-[11px] font-bold text-gray-400 font-mono tracking-tighter uppercase">{item._id.slice(-6)}</td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="text-[11px] font-bold text-gray-800 uppercase tracking-tighter">{item.name}</p>
-                      <p className="text-[9px] text-blue-500 font-bold uppercase tracking-widest mt-0.5">{item.category}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-[10px] text-gray-600 font-bold uppercase tracking-widest">{item.batch}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[11px] font-bold ${item.stock < 50 ? 'text-rose-600 underline' : 'text-gray-800'}`}>
-                        {item.stock} UNT
-                      </span>
-                      {item.stock < 50 && <span className="bg-rose-50 text-rose-600 text-[8px] font-bold px-1.5 py-0.5 rounded border border-rose-100 uppercase animate-pulse">Critical</span>}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-[10px] text-gray-500 font-bold uppercase tracking-tighter">
-                      <Calendar size={12} className="text-gray-300" /> {formatDate(item.expiryDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-[11px] font-bold text-gray-900">{formatCurrency(item.price)}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button 
-                        onClick={() => handleOpenModal(item)}
-                        className="p-2 text-gray-300 hover:text-blue-600 transition-all"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(item._id)}
-                        className="p-2 text-gray-300 hover:text-rose-600 transition-all"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modern Modal Overlay */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
-                <div className="p-6 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-800 uppercase tracking-tight">{editingItem ? 'Adjust Inventory' : 'Institutional SKU Entry'}</h2>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Pharmacy Command Terminal • ID: {editingItem?._id?.slice(-6) || 'NEW'}</p>
-                    </div>
-                    <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-                        <X size={20} className="text-gray-400" />
-                    </button>
+    return (
+        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4 gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Medicine Master Ledger</h1>
+                    <p className="text-xs text-gray-500 font-medium mt-1">Official institutional record of pharmaceutical stock and pricing.</p>
                 </div>
-                
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Drug Designation</label>
-                            <input 
-                                type="text" 
-                                required
-                                readOnly={!!editingItem}
-                                className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700 ${editingItem ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                value={formData.name}
-                                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                placeholder="e.g. Paracetamol"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Operational Batch</label>
-                            <input 
-                                type="text" 
-                                required
-                                readOnly={!!editingItem}
-                                className={`w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700 ${editingItem ? 'opacity-60 cursor-not-allowed' : ''}`}
-                                value={formData.batch}
-                                onChange={(e) => setFormData({...formData, batch: e.target.value})}
-                                placeholder="BT-XXXX"
-                            />
-                        </div>
-                    </div>
+                <button 
+                    onClick={() => setShowForm(!showForm)}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+                >
+                    {showForm ? 'Close Intake Form' : <><Plus size={16} /> Register New SKU</>}
+                </button>
+            </div>
 
-                    <div className="grid grid-cols-3 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Stock Vol.</label>
-                            <input 
-                                type="number" 
-                                required
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
-                                value={formData.stock}
-                                onChange={(e) => setFormData({...formData, stock: e.target.value})}
-                            />
+            {showForm && (
+                <div className="bg-white p-8 rounded-2xl border-2 border-blue-100 shadow-xl animate-in zoom-in-95 duration-200">
+                    <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <Package className="text-blue-600" size={18} /> SKU Entry Terminal
+                    </h2>
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Trade Name</label>
+                            <input required type="text" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-blue-500" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="e.g. Sumo" />
                         </div>
-                        {!editingItem && (
-                          <>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Expiry Lock</label>
-                                <input 
-                                    type="date" 
-                                    required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
-                                    value={formData.expiryDate}
-                                    onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Unit Value</label>
-                                <input 
-                                    type="number" 
-                                    required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({...formData, price: e.target.value})}
-                                />
-                            </div>
-                          </>
-                        )}
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Formulation</label>
+                            <select className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-blue-500" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                                <option>Tablet</option>
+                                <option>Syrup</option>
+                                <option>Injection</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Unit Price (₹)</label>
+                            <input required type="number" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-blue-500" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} placeholder="0.00" />
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Volume (Stock)</label>
+                            <input required type="number" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-blue-500" value={formData.stock} onChange={(e) => setFormData({...formData, stock: e.target.value})} placeholder="0" />
+                        </div>
+                        <div className="space-y-1 lg:col-span-1">
+                             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Expiry Date</label>
+                             <input required type="date" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-blue-500" value={formData.expiryDate} onChange={(e) => setFormData({...formData, expiryDate: e.target.value})} />
+                        </div>
+                        <div className="lg:col-span-5 flex justify-end">
+                            <button 
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="px-10 py-3.5 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center shadow-lg"
+                            >
+                                {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : "Authorize System Entry"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                    <h2 className="text-xs font-bold text-gray-700 uppercase tracking-widest">Master Inventory Ledger</h2>
+                    <div className="flex items-center gap-4">
+                        <div className="relative w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                            <input type="text" placeholder="Filter by SKU name..." className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-blue-400 font-semibold" />
+                        </div>
                     </div>
-                    
-                    <button 
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full py-4 mt-4 bg-gray-900 text-white rounded-lg font-bold text-xs uppercase tracking-[0.2em] hover:bg-blue-600 shadow-xl transition-all active:scale-95 disabled:bg-gray-400 flex items-center justify-center gap-3"
-                    >
-                        {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (editingItem ? "Update Institutional Stock" : "Authorize SKU Entry")}
-                    </button>
-                </form>
-           </div>
+                </div>
+                <div className="overflow-x-auto min-h-[300px]">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 text-gray-400 text-[10px] uppercase font-bold tracking-widest border-b border-gray-100">
+                            <tr>
+                                <th className="px-8 py-5">SKU Designation</th>
+                                <th className="px-8 py-5">Category</th>
+                                <th className="px-8 py-5 text-center">Unit Price</th>
+                                <th className="px-8 py-5 text-center">Stock Volume</th>
+                                <th className="px-8 py-5 text-center">Expiry Data</th>
+                                <th className="px-8 py-5 text-right">Ops</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {inventory.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-8 py-20 text-center text-gray-400 font-bold uppercase text-xs tracking-widest">No active SKUs detected in institutional ledger.</td>
+                                </tr>
+                            ) : inventory.map((item) => (
+                                <tr key={item._id} className="hover:bg-blue-50/20 transition-all group">
+                                    <td className="px-8 py-5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center font-bold shadow-sm">
+                                                <Pill size={18} />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900">{item.name}</p>
+                                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">RID-{item._id.slice(-6).toUpperCase()}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5">
+                                        <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold uppercase tracking-tighter italic">
+                                            {item.category}
+                                        </span>
+                                    </td>
+                                    <td className="px-8 py-5 text-center font-bold text-gray-700 text-sm">₹{item.price}</td>
+                                    <td className="px-8 py-5 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <span className={`text-sm font-bold ${item.stock < 10 ? 'text-red-600' : 'text-gray-900'}`}>{item.stock} UNT</span>
+                                            {item.stock < 10 && <span className="text-[8px] font-black text-red-500 uppercase tracking-tighter mt-1 animate-pulse">Critical</span>}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                                                <Calendar size={12} className="text-gray-300" />
+                                                {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                            </span>
+                                            {item.expiryDate && new Date(item.expiryDate) < new Date() && <span className="text-[8px] font-black text-red-500 uppercase tracking-tighter mt-1">Expired</span>}
+                                        </div>
+                                    </td>
+                                    <td className="px-8 py-5 text-right">
+                                        <button 
+                                            onClick={() => handleDelete(item._id)}
+                                            className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="p-8 bg-gray-50/50 flex justify-end gap-10">
+                    <div className="text-right">
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Valuation</p>
+                        <p className="text-xl font-bold text-gray-900">₹{inventory.reduce((acc, curr) => acc + (curr.price * curr.stock), 0).toLocaleString()}</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      )}
-      
-      {/* Stock Summary Briefing */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-900 p-5 rounded-lg text-white border border-gray-800">
-               <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1">Total SKU Value</p>
-               <h3 className="text-xl font-bold italic text-gray-100">{formatCurrency(inventory.reduce((acc, curr) => acc + (curr.price * curr.stock), 0))}</h3>
-          </div>
-          <div className="bg-white p-5 rounded-lg border border-gray-200">
-               <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Items Below Threshold</p>
-               <h3 className="text-xl font-bold text-rose-600">{inventory.filter(i => i.stock < 50).length.toString().padStart(2, '0')} Batches</h3>
-          </div>
-          <div className="bg-white p-5 rounded-lg border border-gray-200">
-               <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Operational Stock Health</p>
-               <h3 className="text-xl font-bold text-emerald-600">92.4% Optimal</h3>
-          </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default PharmacyInventory;

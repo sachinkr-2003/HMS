@@ -16,6 +16,7 @@ const Login = () => {
     const roles = [
         { id: 'admin', label: 'Administrator', icon: ShieldCheck },
         { id: 'doctor', label: 'Medical Doctor', icon: Stethoscope },
+        { id: 'staff', label: 'Reception / Staff', icon: UserCircle },
         { id: 'patient', label: 'Patient', icon: UserCircle },
         { id: 'pharmacy', label: 'Pharmacy Staff', icon: Pill },
         { id: 'lab', label: 'Lab Technician', icon: Microscope },
@@ -26,15 +27,24 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setError(null);
         try {
             const userData = await login(formData.email, formData.password);
+            
+            // Institutional Protocol: Strict Role Validation
             if (userData.role !== selectedRole.id) {
-                navigate(`/${userData.role}`);
-            } else {
-                navigate(`/${selectedRole.id}`);
+                // If role mismatch, we must invalidate the login attempt for that role area
+                setError(`Access Denied: Your account role (${userData.role}) does not match the selected area (${selectedRole.id}).`);
+                // Note: The AuthContext might have already set the user, so we should handle that
+                // For now, we block the navigation and show the error.
+                return;
             }
+
+            // Valid orientation: Navigate to correct dashboard
+            navigate(`/${selectedRole.id}`);
         } catch (err) {
-            // Error is handled by context
+            // Error is handled by context, but we ensure UI feedback
+            console.error("Authentication Blocked:", err);
         } finally {
             setIsSubmitting(false);
         }

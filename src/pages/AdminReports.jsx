@@ -1,145 +1,115 @@
-import React from 'react';
-import { TrendingUp, BarChart3, PieChart, Users, DollarSign, ArrowUpRight, Download, Calendar } from 'lucide-react';
-import { ExportEngine } from '../utils/ExportEngine';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { TrendingUp, BarChart3, Users, DollarSign, ArrowUpRight, Download, Calendar, Loader2, Award } from 'lucide-react';
 
 const AdminReports = () => {
-    const reportData = [
-        ['Surgery Unit', '98%', 'Peak', '₹1.2 Cr'],
-        ['Diagnostics', '92%', 'Stable', '₹85.4 L'],
-        ['Pharmacy', '85%', 'High', '₹42.1 L'],
-        ['Emergency', '78%', 'Normal', '₹22.5 L']
-    ];
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const handleExport = () => {
-        ExportEngine.toPDF(
-            'Institutional Performance Matrix',
-            ['Department', 'Efficiency', 'Status', 'Revenue Contribution'],
-            reportData,
-            'HMS-Global-Performance'
-        );
-    };
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/dashboard/admin-stats`);
+                setStats(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Reports Fetch Failure");
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Classic Header Block */}
+        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+            {/* Header Block */}
             <div className="flex items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Hospital Intelligence & Reports</h1>
-                    <p className="text-xs text-gray-500 font-medium mt-1">Global performance metrics and multi-departmental growth analytics.</p>
+                    <p className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-tighter">Global performance metrics and multi-departmental growth analytics.</p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg font-bold text-[10px] text-gray-600 hover:bg-gray-50 transition-all shadow-sm">
-                        <Calendar size={14} className="text-blue-500" /> Range
-                    </button>
-                    <button 
-                        onClick={handleExport}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-[10px] hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
-                    >
-                        <Download size={14} /> Export Report
+                    <button className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg">
+                        <Download size={14} /> Global Ledger Export
                     </button>
                 </div>
             </div>
 
-            {/* Adjusted Horizontal Stats - Reduced by 10px as requested (min-h-110) */}
+            {/* Zero-State Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="bg-white p-5 min-h-[110px] rounded-xl shadow-sm border border-gray-200 flex items-center gap-5 relative overflow-hidden transition-all hover:shadow-md">
-                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-inner shrink-0">
-                        <Users size={24} />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2.5">
-                            <h3 className="text-2xl font-bold text-gray-900 leading-none">12.4k</h3>
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                <ArrowUpRight size={10} /> 24%
-                            </span>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-blue-300 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                            <Users size={24} />
                         </div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5">Total Patient Footfall</p>
+                        <div>
+                            <h3 className="text-2xl font-black text-gray-900 leading-none">{stats?.patientCount || 0}</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Total Subject Footfall</p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 min-h-[110px] rounded-xl shadow-sm border border-gray-200 flex items-center gap-5 relative overflow-hidden transition-all hover:shadow-md">
-                    <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shadow-inner shrink-0">
-                        <DollarSign size={24} />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2.5">
-                            <h3 className="text-2xl font-bold text-gray-900 leading-none">₹4.2 Cr</h3>
-                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
-                                <ArrowUpRight size={10} /> 15%
-                            </span>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-emerald-300 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center">
+                            <DollarSign size={24} />
                         </div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5">Annual Revenue</p>
+                        <div>
+                            <h3 className="text-2xl font-black text-gray-900 leading-none">₹{(stats?.revenue || 0).toLocaleString()}</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Annual Revenue Yield</p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 min-h-[110px] rounded-xl shadow-sm border border-gray-200 flex items-center gap-5 relative overflow-hidden transition-all hover:shadow-md">
-                    <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shadow-inner shrink-0">
-                        <TrendingUp size={24} />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2.5">
-                            <h3 className="text-2xl font-bold text-gray-900 leading-none">92%</h3>
-                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 uppercase">
-                                SCORE
-                            </span>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:border-indigo-300 transition-all">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                            <Award size={24} />
                         </div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5">Patient Satisfaction</p>
+                        <div>
+                            <h3 className="text-2xl font-black text-gray-900 leading-none">100%</h3>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Compliance Score</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h2 className="text-[10px] font-bold mb-6 uppercase tracking-[0.15em] text-gray-700">Patient Intake Trend (Annual)</h2>
-                    <div className="h-40 flex items-end justify-between gap-2 px-2">
-                        {[40, 60, 45, 90, 65, 80, 50, 70, 85, 60, 95, 100].map((val, i) => (
-                            <div key={i} className="flex-1 bg-blue-50 rounded-t-sm relative group border-t border-blue-100">
-                                <div 
-                                    className="absolute bottom-0 left-0 w-full bg-blue-500/80 rounded-t-sm transition-all duration-1000"
-                                    style={{ height: `${val}%` }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex justify-between mt-3 px-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">
-                        <span>Jan - Mar</span>
-                        <span>Apr - Jun</span>
-                        <span>Jul - Sep</span>
-                        <span>Oct - Dec</span>
-                    </div>
+                {/* Zero State Chart */}
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center items-center text-center min-h-[300px]">
+                    <BarChart3 className="text-gray-100 mb-4" size={64} />
+                    <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Institutional Trend Awaiting Data</h2>
+                    <p className="text-[10px] text-gray-300 font-medium mt-2 italic">Annual patient intake trends will populate here once transactions begin.</p>
                 </div>
 
-                <div className="bg-gray-900 p-6 rounded-xl shadow-xl text-white flex flex-col justify-between border border-gray-800 relative overflow-hidden">
+                {/* Performance Summary */}
+                <div className="bg-gray-900 p-8 rounded-3xl shadow-xl text-white relative overflow-hidden flex flex-col justify-between">
                     <div className="relative z-10">
-                        <h2 className="text-[10px] font-bold mb-6 flex items-center gap-3 uppercase tracking-widest text-blue-400">
-                           <BarChart3 size={16} /> Performance By Department
+                        <h2 className="text-[11px] font-black mb-8 flex items-center gap-3 uppercase tracking-[0.2em] text-blue-400">
+                           <TrendingUp size={18} /> Operational Efficiency Matrix
                         </h2>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             {[
-                                { name: 'Surgery Unit', efficiency: 98, status: 'Peak' },
-                                { name: 'Diagnostics', efficiency: 92, status: 'Stable' },
-                                { name: 'Pharmacy', efficiency: 85, status: 'High' },
+                                { name: 'Surgery Unit', stat: 'Idle', color: 'bg-blue-500' },
+                                { name: 'Diagnostics', stat: 'Awaiting', color: 'bg-emerald-500' },
+                                { name: 'Pharmacy', stat: 'Online', color: 'bg-indigo-500' },
                             ].map((dept, i) => (
-                                <div key={i} className="flex items-center justify-between px-3 py-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-blue-500/20 rounded border border-blue-500/20 flex items-center justify-center font-bold text-blue-400 text-xs">
-                                            {dept.name[0]}
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-bold text-white">{dept.name}</p>
-                                            <p className="text-[8px] text-gray-500 font-bold uppercase">{dept.status}</p>
-                                        </div>
+                                <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-1.5 h-6 ${dept.color} rounded-full`} />
+                                        <span className="text-xs font-bold uppercase tracking-tight">{dept.name}</span>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-base font-black text-emerald-400">{dept.efficiency}%</p>
-                                        <p className="text-[8px] text-gray-600 uppercase font-bold text-center">Eff.</p>
-                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{dept.stat}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="absolute right-0 bottom-0 opacity-5 -mb-2 mr-0 pointer-events-none">
-                        <BarChart3 size={150} className="text-blue-500 translate-y-10 translate-x-10" />
+                    <div className="mt-8 border-t border-white/5 pt-6 relative z-10">
+                        <p className="text-[9px] text-gray-500 font-bold uppercase tracking-tighter leading-loose">
+                            System is currently in institutional zero-state. No performance variances detected across departments.
+                        </p>
                     </div>
                 </div>
             </div>

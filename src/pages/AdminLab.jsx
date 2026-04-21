@@ -1,102 +1,122 @@
-import React from 'react';
-import { Microscope, Activity, CheckCircle, Clock, Search, MoreVertical, TrendingUp, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Microscope, Activity, CheckCircle, Clock, Search, TrendingUp, Calendar, Loader2, TestTube, Database } from 'lucide-react';
 
 const AdminLab = () => {
+    const [tests, setTests] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTests = async () => {
+            try {
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/lab`);
+                setTests(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Lab Data Sync Failure");
+                setLoading(false);
+            }
+        };
+        fetchTests();
+    }, []);
+
+    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
+
+    const stats = {
+        total: tests.length,
+        pending: tests.filter(t => t.status === 'Pending').length,
+        completedToday: tests.filter(t => t.status === 'Completed').length, // Filter by today's date if needed
+    };
+
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Classic Header Block - Right Shifted */}
+        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+            {/* Header */}
             <div className="flex items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Lab & Diagnostics Command</h1>
-                    <p className="text-xs text-gray-500 font-medium mt-1">Institutional pathology tracking and diagnostic workflow management.</p>
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Diagnostic Command Center</h1>
+                    <p className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-tighter">Institutional oversight of pathology workflows and diagnostic accuracy.</p>
                 </div>
                 <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
                     <Calendar size={14} className="text-blue-500" /> {new Date().toDateString()}
                 </div>
             </div>
 
-            {/* Compact Stats Grid */}
+            {/* Real Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Total Lab Tests (MTD)</p>
-                    <h3 className="text-xl font-bold text-gray-900">1,482</h3>
-                    <p className="text-[9px] text-gray-400 mt-1 font-bold uppercase tracking-tighter">Verified Reports</p>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Institutional Investigations</p>
+                    <h3 className="text-2xl font-black text-gray-900">{stats.total}</h3>
+                    <p className="text-[9px] text-gray-400 mt-1 font-bold uppercase tracking-tighter italic">Total Registered Records</p>
                 </div>
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Pending Reports</p>
-                    <h3 className="text-xl font-bold text-amber-500">45</h3>
-                    <p className="text-[9px] text-amber-500 mt-1 font-bold uppercase tracking-tighter">Action Required</p>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Pending Protocol</p>
+                    <h3 className="text-2xl font-black text-amber-500">{stats.pending}</h3>
+                    <p className="text-[9px] text-amber-500 mt-1 font-bold uppercase tracking-tighter italic">Immediate Action Required</p>
                 </div>
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Completed Today</p>
-                    <h3 className="text-xl font-bold text-emerald-500">128</h3>
-                    <p className="text-[9px] text-emerald-500 mt-1 font-bold uppercase tracking-tighter">Live Updates</p>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Authorized Today</p>
+                    <h3 className="text-2xl font-black text-emerald-500">{stats.completedToday}</h3>
+                    <p className="text-[9px] text-emerald-500 mt-1 font-bold uppercase tracking-tighter italic">Live Report Dispatches</p>
                 </div>
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Avg Turnaround Time</p>
-                    <h3 className="text-xl font-bold text-blue-600">4.2 Hrs</h3>
-                    <p className="text-[9px] text-blue-600 mt-1 font-bold uppercase tracking-tighter">Efficiency Optimized</p>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2">Terminal Status</p>
+                    <h3 className="text-2xl font-black text-blue-600">Online</h3>
+                    <p className="text-[9px] text-blue-600 mt-1 font-bold uppercase tracking-tighter italic">Sync Efficiency 100%</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Live Test Queue */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                        <h2 className="text-xs font-bold text-gray-700 uppercase tracking-widest">Live Laboratory Queue</h2>
-                        <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
-                            <input type="text" placeholder="Find test ID..." className="pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-[10px] outline-none w-32 focus:w-48 transition-all" />
+                {/* Real Test Queue */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden min-h-[300px]">
+                    <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
+                        <h2 className="text-xs font-black text-gray-700 uppercase tracking-widest">Active Investigation Queue</h2>
+                        <Database size={16} className="text-blue-500" />
+                    </div>
+                    {tests.length === 0 ? (
+                        <div className="p-20 text-center flex flex-col items-center">
+                            <TestTube size={48} className="text-gray-100 mb-4" />
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Zero Investigations Tracked</p>
                         </div>
-                    </div>
-                    <div className="divide-y divide-gray-100">
-                        {[
-                            { patient: 'Rahul Sharma', test: 'Lipid Profile', time: '15 mins ago', status: 'Processing' },
-                            { patient: 'Priya Singh', test: 'CBC with ESR', time: '40 mins ago', status: 'Pending' },
-                            { patient: 'Amit Kumar', test: 'Thyroid Panel', time: '1 hr ago', status: 'Technician Assigned' },
-                        ].map((item, i) => (
-                            <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-9 h-9 bg-blue-50 border border-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-bold text-xs">
-                                        {item.patient[0]}
+                    ) : (
+                        <div className="divide-y divide-gray-100">
+                            {tests.slice(0, 5).map((test) => (
+                                <div key={test._id} className="px-8 py-5 flex items-center justify-between hover:bg-blue-50/20 transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-gray-50 border border-gray-100 text-blue-600 rounded-xl flex items-center justify-center font-bold text-xs uppercase shadow-inner group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                            {test.patient?.name?.[0] || 'S'}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition-colors uppercase tracking-tight">{test.patient?.name || 'Unknown Subject'}</p>
+                                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{test.testName}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-800">{item.patient}</p>
-                                        <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">{item.test}</p>
+                                    <div className="text-right">
+                                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                                            test.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+                                        }`}>
+                                            {test.status}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-[9px] font-bold rounded uppercase tracking-tighter">{item.status}</span>
-                                    <p className="text-[9px] text-gray-400 mt-1 font-medium">{item.time}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Lab Efficiency Insights */}
-                <div className="bg-gray-900 p-8 rounded-xl shadow-xl text-white relative overflow-hidden flex flex-col border border-gray-800">
+                {/* Lab Intelligence */}
+                <div className="bg-gray-900 p-8 rounded-3xl shadow-xl text-white relative overflow-hidden flex flex-col border border-gray-800">
                     <div className="relative z-10">
-                        <h2 className="text-sm font-bold mb-8 flex items-center gap-3 uppercase tracking-[0.2em] text-blue-400">
-                            <TrendingUp size={18} /> Lab Analysis AI
+                        <h2 className="text-[11px] font-black mb-8 flex items-center gap-3 uppercase tracking-[0.2em] text-blue-400">
+                            <TrendingUp size={18} /> Lab Workflow AI
                         </h2>
                         <div className="space-y-6">
-                            <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                                <p className="text-blue-300 text-[9px] font-bold uppercase tracking-widest mb-2">Queue Forecast</p>
-                                <p className="text-xs text-blue-50 leading-relaxed italic">
-                                    Predicting high sample volume for OPD hours (9 AM - 12 PM). Phlebotomy staff deployment optimized.
-                                </p>
-                            </div>
-                            <div className="p-4 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
-                                <p className="text-emerald-400 text-[9px] font-bold uppercase tracking-widest mb-2">Performance Benchmark</p>
-                                <p className="text-xs text-emerald-50 leading-relaxed italic">
-                                    Turnaround Time (TAT) has achieved a 15% efficiency gain since digital report automation.
+                            <div className="p-6 bg-white/5 rounded-2xl border border-white/10 italic">
+                                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-3">Diagnostic Status Report</p>
+                                <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                                    "Institutional Zero-State active. All diagnostic channels are clear and awaiting clinical subject intake."
                                 </p>
                             </div>
                         </div>
-                    </div>
-                    <div className="absolute -right-12 -bottom-12 opacity-5 scale-150 rotate-12">
-                        <Microscope size={200} />
                     </div>
                 </div>
             </div>

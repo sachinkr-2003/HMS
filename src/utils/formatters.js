@@ -20,7 +20,28 @@ export const formatDate = (date) => {
     });
 };
 
-// Format ID with Prefix
-export const formatTerminalID = (id, prefix = 'HR-OP') => {
-    return `${prefix}-${id.toString().padStart(6, '0')}`;
+// Global CSV Exporter for Institutional Reports
+export const exportToCSV = (data, filename = 'report') => {
+    if (!data || !data.length) return;
+    
+    // Extract headers
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+        headers.join(','), // header row
+        ...data.map(row => 
+            headers.map(fieldName => JSON.stringify(row[fieldName] || '')).join(',')
+        )
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `${filename}_${new Date().toISOString().slice(0,10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 };

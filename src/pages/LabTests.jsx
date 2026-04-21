@@ -19,7 +19,7 @@ const LabTests = () => {
   const fetchTests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/lab');
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/lab`);
       setTests(res.data);
       setLoading(false);
     } catch (err) {
@@ -54,9 +54,9 @@ const LabTests = () => {
     setIsSubmitting(true);
     try {
       if (editingTest) {
-        await axios.put(`http://localhost:5000/api/lab/${editingTest._id}`, formData);
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/lab/${editingTest._id}`, formData);
       } else {
-        await axios.post('http://localhost:5000/api/lab', formData);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/lab`, formData);
       }
       await fetchTests();
       setShowModal(false);

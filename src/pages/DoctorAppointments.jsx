@@ -12,24 +12,20 @@ const DoctorAppointments = () => {
 
     const fetchAppointments = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/appointments');
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments`);
             setAppointments(res.data);
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch appointments");
             // Demo data if API fails
-            setAppointments([
-                { _id: '1', patient: { name: 'Rahul Sharma' }, appointmentDate: new Date(), status: 'Confirmed', reason: 'Follow-up Consultation' },
-                { _id: '2', patient: { name: 'Sonia Verma' }, appointmentDate: new Date(), status: 'Waiting', reason: 'Diagnostic Review' },
-                { _id: '3', patient: { name: 'Amit Kumar' }, appointmentDate: new Date(), status: 'Completed', reason: 'Emergency Triage' }
-            ]);
+            setAppointments([]);
             setLoading(false);
         }
     };
 
     const handleStatusChange = async (id, status) => {
         try {
-            await axios.put(`http://localhost:5000/api/appointments/${id}/status`, { status });
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/appointments/${id}/status`, { status });
             fetchAppointments();
         } catch (err) {
             console.error("Update failed");

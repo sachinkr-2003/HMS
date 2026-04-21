@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { Search, UserPlus, Shield, Edit2, Trash2, MoreVertical, Filter, X, Loader2, AlertCircle } from 'lucide-react';
 
 const AdminUsers = () => {
@@ -20,7 +21,7 @@ const AdminUsers = () => {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('http://localhost:5000/api/auth/users');
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/auth/users`);
             setUsers(res.data);
             setLoading(false);
         } catch (err) {
@@ -55,32 +56,63 @@ const AdminUsers = () => {
         setIsSubmitting(true);
         setError(null);
         try {
+            const dataToSubmit = { ...formData, role: formData.role.toLowerCase() };
             if (editingUser) {
-                await axios.put(`http://localhost:5000/api/auth/users/${editingUser._id}`, formData);
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/auth/users/${editingUser._id}`, dataToSubmit);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Credentials Adjusted',
+                    text: 'Staff clearance level has been synchronized.',
+                    confirmButtonColor: '#2563eb'
+                });
             } else {
-                await axios.post('http://localhost:5000/api/auth/register', formData);
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, dataToSubmit);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Access Granted',
+                    text: 'New staff unit has been onboarded successfully.',
+                    confirmButtonColor: '#2563eb'
+                });
             }
             await fetchUsers();
             setShowModal(false);
             setFormData({ name: '', email: '', password: '', role: 'doctor' });
         } catch (err) {
             setError(err.response?.data?.message || "Credential Authorization Failure.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Authorization Failure',
+                text: err.response?.data?.message || "System denied the credential request.",
+                confirmButtonColor: '#dc2626'
+            });
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Authorize Access Termination? This action is permanent.")) {
+        const result = await Swal.fire({
+            title: 'Terminate Access?',
+            text: "This action will permanently revoke institutional credentials.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Confirm Termination',
+            cancelButtonText: 'Abort'
+        });
+
+        if (result.isConfirmed) {
             try {
                 if (users.find(u => u._id === id)?.role === 'admin' && users.filter(u => u.role === 'admin').length <= 1) {
-                    alert("Institutional Protocol: Primary Admin cannot be terminated.");
+                    Swal.fire('Protocol Violation', 'Primary Admin cannot be terminated.', 'error');
                     return;
                 }
-                await axios.delete(`http://localhost:5000/api/auth/users/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/auth/users/${id}`);
                 await fetchUsers();
+                Swal.fire('Deleted!', 'User access has been neutralized.', 'success');
             } catch (err) {
-                alert("Authorization Denied. Security Clearance Required.");
+                Swal.fire('Access Denied', 'Institutional clearance required to delete users.', 'error');
             }
         }
     };
@@ -206,7 +238,7 @@ const AdminUsers = () => {
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             {error && (
                                 <div className="p-4 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-3 text-rose-600">
                                     <AlertCircle size={18} />
@@ -214,36 +246,37 @@ const AdminUsers = () => {
                                 </div>
                             )}
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Staff Legal Identity</label>
+                                <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Staff Full Name</label>
                                 <input 
                                     type="text" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-gray-700"
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                    placeholder="Enter full legal name"
+                                    placeholder="e.g. Rahul Sharma"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">System Dispatch Email</label>
+                                <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Email Address</label>
                                 <input 
                                     type="email" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-gray-700"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    placeholder="admin@institution.com"
+                                    placeholder="name@hospital.com"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Assigned Unit</label>
+                                    <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Account Role</label>
                                     <select 
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-xs font-bold text-gray-700 uppercase"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-xs font-bold text-gray-700"
                                         value={formData.role}
                                         onChange={(e) => setFormData({...formData, role: e.target.value})}
                                     >
                                         <option value="doctor">Doctor</option>
+                                        <option value="staff">Staff / Reception</option>
                                         <option value="pharmacy">Pharmacy</option>
                                         <option value="lab">Laboratory</option>
                                         <option value="ward">Ward</option>
@@ -252,14 +285,14 @@ const AdminUsers = () => {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">{editingUser ? 'Update Key (Opt.)' : 'Secret Key'}</label>
+                                    <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">{editingUser ? 'New Password' : 'Password'}</label>
                                     <input 
                                         type="password" 
                                         required={!editingUser}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-mono"
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm"
                                         value={formData.password}
                                         onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                        placeholder="••••••••"
+                                        placeholder="Min 6 characters"
                                     />
                                 </div>
                             </div>
@@ -267,9 +300,9 @@ const AdminUsers = () => {
                             <button 
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full py-4 mt-4 bg-gray-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all active:scale-95 disabled:bg-gray-400 flex items-center justify-center gap-3"
+                                className="w-full py-4 mt-2 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-xl transition-all active:scale-95 disabled:bg-gray-400 flex items-center justify-center gap-3"
                             >
-                                {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (editingUser ? "Authorize Credential Adjustment" : "Authorize Access Level")}
+                                {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (editingUser ? "Update User Account" : "Register New Staff")}
                             </button>
                         </form>
                     </div>

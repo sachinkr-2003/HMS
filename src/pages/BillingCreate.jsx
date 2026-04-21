@@ -228,17 +228,44 @@ const BillingCreate = () => {
                         )}
 
                         {selectedPatient && (
-                            <div className="mt-4 flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-lg animate-in slide-in-from-top-2 duration-300 shadow-xl">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded border border-blue-500/30 bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                                        {selectedPatient.name[0]}
+                            <div className="space-y-4">
+                                <div className="mt-4 flex items-center justify-between p-4 bg-gray-900 border border-gray-800 rounded-lg animate-in slide-in-from-top-2 duration-300 shadow-xl">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded border border-blue-500/30 bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                                            {selectedPatient.name[0]}
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-white text-[11px] uppercase tracking-[0.1em]">{selectedPatient.name}</p>
+                                            <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.2em] mt-0.5">{selectedPatient.phone} | VERIFIED</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-white text-[11px] uppercase tracking-[0.1em]">{selectedPatient.name}</p>
-                                        <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.2em] mt-0.5">{selectedPatient.phone} | VERIFIED</p>
-                                    </div>
+                                    <button onClick={() => setSelectedPatient(null)} className="p-2 text-gray-500 hover:text-rose-500 transition-colors"><X size={18}/></button>
                                 </div>
-                                <button onClick={() => setSelectedPatient(null)} className="p-2 text-gray-500 hover:text-rose-500 transition-colors"><X size={18}/></button>
+                                <button 
+                                    onClick={async () => {
+                                        try {
+                                            const res = await axios.get(`http://localhost:5000/api/medical-records/patient/${selectedPatient._id}`);
+                                            const latestRecord = res.data[0];
+                                            if (latestRecord && latestRecord.prescriptions.length > 0) {
+                                                const prescribedItems = latestRecord.prescriptions.map(p => ({
+                                                    id: Date.now() + Math.random(),
+                                                    desc: p.medicine,
+                                                    qty: p.quantity || 1,
+                                                    price: p.price || 0
+                                                }));
+                                                setItems(prescribedItems);
+                                                alert("Smart Sync: Prescribed medicines pulled into voucher.");
+                                            } else {
+                                                alert("No pending prescriptions found for this patient.");
+                                            }
+                                        } catch (err) {
+                                            alert("Failed to pull prescriptions.");
+                                        }
+                                    }}
+                                    className="w-full py-2 bg-blue-600/10 text-blue-600 border border-blue-200 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                >
+                                    ⚡ Pull from Doctor's Prescription
+                                </button>
                             </div>
                         )}
                     </div>

@@ -3,8 +3,9 @@ import axios from 'axios';
 import { 
     Calendar, Users, Clock, AlertCircle, 
     CheckCircle, History, ExternalLink, 
-    ClipboardList, BrainCircuit, Loader2, Send, ChevronRight
+    ClipboardList, BrainCircuit, Loader2, Send, ChevronRight, FilePlus
 } from 'lucide-react';
+import AddMedicalRecordModal from '../components/AddMedicalRecordModal';
 
 const DoctorDashboard = () => {
     const [stats, setStats] = useState({
@@ -17,6 +18,8 @@ const DoctorDashboard = () => {
     const [rawNotes, setRawNotes] = useState('');
     const [structuredNotes, setStructuredNotes] = useState('');
     const [isAILoading, setIsAILoading] = useState(false);
+    const [selectedApt, setSelectedApt] = useState(null);
+    const [showRecordModal, setShowRecordModal] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -25,19 +28,21 @@ const DoctorDashboard = () => {
             const profileRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/doctors/me`);
             const doctorId = profileRes.data._id;
 
-            // 2. Get Appointments
+            // 2. Get Appointments for this Doctor
             const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/doctor/${doctorId}`);
+            
+            // Filter only today's appointments if needed, but for now we'll show all assigned
             setAppointments(aptRes.data);
             
-            setStats({
+            setStats(prev => ({
+                ...prev,
                 todayAppointments: aptRes.data.length,
-                pendingReports: 4,
-                criticalCases: 2
-            });
+            }));
             setLoading(false);
         } catch (err) {
             console.error("Clinical Sync Failure:", err);
-            setAppointments([]); // Decommission static queue
+            // If profile not found, try to fetch by user context or show empty
+            setAppointments([]);
             setStats({ todayAppointments: 0, pendingReports: 0, criticalCases: 0 });
             setLoading(false);
         }
@@ -170,9 +175,20 @@ const DoctorDashboard = () => {
                                         <div className="text-right">
                                             <p className="text-[10px] font-bold text-gray-900">{new Date(app.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                             <p className={`text-[8px] font-bold uppercase tracking-widest mt-1 px-2 py-0.5 rounded border ${
+                                                app.status === 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
                                                 app.status === 'Confirmed' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                                             }`}>{app.status}</p>
                                         </div>
+                                        {app.status !== 'Completed' ? (
+                                            <button 
+                                                onClick={() => { setSelectedApt(app); setShowRecordModal(true); }}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+                                            >
+                                                <FilePlus size={12} /> Add Record
+                                            </button>
+                                        ) : (
+                                            <CheckCircle size={16} className="text-emerald-500" />
+                                        )}
                                         <ChevronRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
                                     </div>
                                 </div>
@@ -208,6 +224,15 @@ const DoctorDashboard = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Medical Record Modal */}
+            {showRecordModal && selectedApt && (
+                <AddMedicalRecordModal 
+                    appointment={selectedApt} 
+                    onClose={() => setShowRecordModal(false)} 
+                    onSave={fetchData}
+                />
+            )}
         </div>
     );
 };
