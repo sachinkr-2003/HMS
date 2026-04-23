@@ -12,7 +12,8 @@ import {
     X, 
     AlertCircle,
     ArrowRight,
-    Pill
+    Pill,
+    ShoppingCart
 } from 'lucide-react';
 
 const PharmacyInventory = () => {
@@ -206,7 +207,14 @@ const PharmacyInventory = () => {
                                             {item.expiryDate && new Date(item.expiryDate) < new Date() && <span className="text-[8px] font-black text-red-500 uppercase tracking-tighter mt-1">Expired</span>}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-5 text-right">
+                                    <td className="px-8 py-5 text-right flex justify-end gap-2">
+                                        <button 
+                                            onClick={() => window.location.href = '/pharmacy/billing'}
+                                            className="p-2 text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                            title="Sell this item"
+                                        >
+                                            <ShoppingCart size={16} />
+                                        </button>
                                         <button 
                                             onClick={() => handleDelete(item._id)}
                                             className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"

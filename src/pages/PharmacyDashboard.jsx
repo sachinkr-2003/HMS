@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import { Pill, AlertTriangle, TrendingUp, Package, Loader2, DollarSign, Activity, ChevronRight, BarChart2 } from 'lucide-react';
 
 const PharmacyDashboard = () => {
@@ -52,8 +53,8 @@ const PharmacyDashboard = () => {
                     <p className="text-xs text-gray-500 font-medium mt-1">Unified inventory surveillance, expiry tracking & procurement intelligence.</p>
                 </div>
                 <div className="flex bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
-                   <button className="px-5 py-1.5 bg-blue-600 text-white rounded-md font-bold text-[10px] uppercase tracking-widest">Inventory View</button>
-                   <button className="px-5 py-1.5 text-gray-400 hover:text-blue-600 font-bold text-[10px] uppercase tracking-widest transition-colors">Dispensing Desk</button>
+                   <Link to="/pharmacy/inventory" className="px-5 py-1.5 bg-blue-600 text-white rounded-md font-bold text-[10px] uppercase tracking-widest text-center">Inventory View</Link>
+                   <Link to="/pharmacy/billing" className="px-5 py-1.5 text-gray-400 hover:text-blue-600 font-bold text-[10px] uppercase tracking-widest transition-colors text-center">Dispensing Desk</Link>
                 </div>
             </div>
 

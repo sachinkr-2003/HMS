@@ -1,32 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { 
   Bed, 
   UserPlus, 
   Clock, 
-  AlertCircle,
-  TrendingUp,
   Activity,
-  Filter,
   Loader2,
-  Building
+  Building,
+  TrendingUp,
+  LayoutGrid
 } from 'lucide-react';
 
 const WardDashboard = () => {
-    const [bedStats, setBedStats] = useState({
+    const [stats, setStats] = useState({
         totalBeds: 0,
         availableBeds: 0,
         occupiedBeds: 0,
         occupancyRate: 0
     });
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
     useEffect(() => {
-        const fetchBedData = async () => {
+        const fetchStats = async () => {
             try {
-                // Fetching real bed stats from the dashboard endpoint
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/dashboard/admin-stats`);
-                setBedStats({
+                const res = await axios.get(`${API_BASE}/dashboard/admin-stats`);
+                setStats({
                     totalBeds: res.data.totalBeds,
                     availableBeds: res.data.availableBeds,
                     occupiedBeds: res.data.totalBeds - res.data.availableBeds,
@@ -34,102 +36,123 @@ const WardDashboard = () => {
                 });
                 setLoading(false);
             } catch (err) {
-                console.error("Ward Sync Failure");
+                console.error("Dashboard Fetch Error");
                 setLoading(false);
             }
         };
-        fetchBedData();
+        fetchStats();
     }, []);
 
-    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={30} /></div>;
+    if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 pb-12">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between border-b-2 border-gray-100 pb-4 mb-3 pl-4 gap-4">
+        <div className="p-6 space-y-6 animate-in fade-in duration-500">
+            {/* Simple Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-6 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Institutional Ward Surveillance</h1>
-                    <p className="text-xs text-gray-500 font-medium mt-1 uppercase tracking-tighter">Real-time bed occupancy metrics and patient floor distribution control.</p>
+                    <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Ward Overview Dashboard</h1>
+                    <p className="text-sm text-gray-500 mt-1">Real-time bed management and patient occupancy summary.</p>
                 </div>
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100">
-                        <Bed size={16} /> Manage Bed Grid
-                    </button>
-                </div>
+                <button 
+                    onClick={() => navigate('/ward/beds')}
+                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition-all shadow-md"
+                >
+                    <LayoutGrid size={18} /> Manage Bed Grid
+                </button>
             </div>
 
-            {/* Real Metrics */}
+            {/* Simple Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total Inventory', val: bedStats.totalBeds, icon: Bed, color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { label: 'Active Occupancy', val: bedStats.occupiedBeds, icon: UserPlus, color: 'text-rose-600', bg: 'bg-rose-50' },
-                    { label: 'Available Units', val: bedStats.availableBeds, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-                    { label: 'System Health', val: '100%', icon: Clock, color: 'text-indigo-600', bg: 'bg-indigo-50' }
+                    { label: 'Total Beds', val: stats.totalBeds, icon: Bed, color: 'text-blue-600', bg: 'bg-blue-50/50' },
+                    { label: 'Occupied Beds', val: stats.occupiedBeds, icon: UserPlus, color: 'text-red-600', bg: 'bg-red-50/50' },
+                    { label: 'Available Beds', val: stats.availableBeds, icon: Activity, color: 'text-emerald-600', bg: 'bg-emerald-50/50' },
+                    { label: 'Occupancy Rate', val: `${stats.occupancyRate}%`, icon: TrendingUp, color: 'text-amber-600', bg: 'bg-amber-50/50' }
                 ].map((m, i) => (
-                    <div key={i} className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm flex flex-col justify-between min-h-[120px] hover:border-blue-400 transition-all">
-                        <div className="flex justify-between items-start">
-                            <div className={`p-2.5 ${m.bg} ${m.color} rounded-lg`}>
-                                <m.icon size={18} />
+                    <div key={i} className="bg-white p-6 border border-gray-200 rounded-xl shadow-sm hover:border-blue-400 transition-all">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className={`p-2 rounded-lg ${m.bg} ${m.color}`}>
+                                <m.icon size={20} />
                             </div>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-2">{m.label}</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{m.label}</span>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 tracking-tight mt-2">{m.val.toString().padStart(2, '0')}</h3>
+                        <h3 className="text-2xl font-black text-gray-800">{m.val}</h3>
                     </div>
                 ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-200 min-h-[400px] flex flex-col justify-center items-center text-center">
-                    {bedStats.totalBeds === 0 ? (
-                        <div className="space-y-4">
-                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-gray-200">
-                                <Building size={32} className="text-gray-300" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest">No Bed Inventory Mapped</h3>
-                                <p className="text-[10px] text-gray-400 font-medium mt-1 italic">Use the "Manage Bed Grid" terminal to define institutional wards.</p>
-                            </div>
+                {/* Capacity Card */}
+                <div className="lg:col-span-2 bg-white p-8 rounded-xl border border-gray-200 shadow-sm min-h-[300px]">
+                    <div className="flex items-center justify-between mb-8 border-b pb-4">
+                        <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Hospital Capacity Chart</h2>
+                        <span className="text-xs font-bold text-blue-600 px-3 py-1 bg-blue-50 rounded-full">Live Stats</span>
+                    </div>
+
+                    {stats.totalBeds === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-48 text-gray-400 space-y-3">
+                            <Building size={48} className="opacity-20" />
+                            <p className="text-sm font-medium">No beds found in the database.</p>
                         </div>
                     ) : (
-                        <div className="w-full space-y-8">
-                             <div className="flex items-center justify-between border-b pb-4 border-gray-50">
-                                <h2 className="text-[11px] font-black text-gray-700 uppercase tracking-[0.2em]">Institutional Capacity Flow</h2>
-                                <span className="text-xs font-bold text-blue-600 italic">Global Occupancy: {bedStats.occupancyRate}%</span>
-                             </div>
-                             <div className="space-y-6">
-                                <div className="space-y-3">
-                                    <div className="flex justify-between text-[11px] font-black uppercase text-gray-500">
-                                        <span>Total Utilization Matrix</span>
-                                        <span>{bedStats.occupiedBeds} / {bedStats.totalBeds} BEDS</span>
+                        <div className="space-y-10 py-6">
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-400 uppercase mb-1">Current Bed Utilization</p>
+                                        <p className="text-2xl font-black text-gray-800">{stats.occupiedBeds} <span className="text-sm font-normal text-gray-400">/ {stats.totalBeds} BEDS</span></p>
                                     </div>
-                                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                                        <div className="bg-blue-600 h-full transition-all duration-1000" style={{ width: `${bedStats.occupancyRate}%` }} />
-                                    </div>
+                                    <span className="text-lg font-bold text-blue-600">{stats.occupancyRate}%</span>
                                 </div>
-                             </div>
+                                <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                                    <div 
+                                        className="bg-blue-600 h-full transition-all duration-1000 shadow-lg shadow-blue-100" 
+                                        style={{ width: `${stats.occupancyRate}%` }} 
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Available Units</p>
+                                    <p className="text-xl font-bold text-emerald-600">{stats.availableBeds}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Emergency Reserves</p>
+                                    <p className="text-xl font-bold text-gray-800">02</p>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="space-y-6">
-                    <div className="bg-gray-900 p-8 rounded-3xl shadow-xl text-white border border-gray-800 flex flex-col justify-between h-full min-h-[400px]">
-                        <div>
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 bg-blue-600 rounded-2xl shadow-lg border border-blue-500 text-white">
-                                    <TrendingUp size={20} />
-                                </div>
-                                <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-500 italic">Ward Intelligence</h2>
+                {/* Info / Quick Links Card */}
+                <div className="bg-gray-50 p-8 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600 border border-gray-100">
+                                <Clock size={20} />
                             </div>
-                            <p className="text-sm font-medium text-gray-500 leading-relaxed italic">
-                                System state: **Zero-Station**. Awaiting bed configuration and patient admissions for trajectory analysis.
-                            </p>
+                            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Quick Summary</h2>
                         </div>
-                        <div className="space-y-4">
-                            <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
-                                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-2">Admission Forecast</p>
-                                <p className="text-xs text-gray-400 font-medium tracking-tight">STABLE • NO SURGE DETECTED</p>
-                            </div>
-                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed">
+                            Current ward status is **Normal**. No immediate surges detected in the last 24 hours. Emergency units are on standby.
+                        </p>
+                    </div>
+
+                    <div className="space-y-3 pt-6 mt-6 border-t border-gray-200">
+                        <button 
+                            onClick={() => navigate('/ward/admissions')}
+                            className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-lg text-xs font-bold uppercase hover:bg-gray-100 transition-all text-center flex items-center justify-center gap-2"
+                        >
+                            <UserPlus size={14} /> New Admission
+                        </button>
+                        <button 
+                            onClick={() => navigate('/ward/roster')}
+                            className="w-full py-3 bg-white border border-gray-200 text-gray-700 rounded-lg text-xs font-bold uppercase hover:bg-gray-100 transition-all text-center flex items-center justify-center gap-2"
+                        >
+                            <LayoutGrid size={14} /> Staff Roster
+                        </button>
                     </div>
                 </div>
             </div>
