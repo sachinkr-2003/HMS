@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
     Activity, Shield, AlertCircle, 
     Wrench, Truck, Calendar, 
@@ -12,15 +12,13 @@ const AdminAssets = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
     useEffect(() => {
         fetchAssets();
     }, []);
 
     const fetchAssets = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/assets`);
+            const res = await API.get('/assets');
             setAssets(res.data);
             setLoading(false);
         } catch (err) {
@@ -59,7 +57,7 @@ const AdminAssets = () => {
 
         if (formValues) {
             try {
-                await axios.post(`${API_BASE}/assets`, formValues);
+                await API.post('/assets', formValues);
                 Swal.fire('Registered!', 'Equipment has been logged into system.', 'success');
                 fetchAssets();
             } catch (err) {
@@ -70,7 +68,7 @@ const AdminAssets = () => {
 
     const updateStatus = async (id, status) => {
         try {
-            await axios.put(`${API_BASE}/assets/${id}`, { status });
+            await API.put(`/assets/${id}`, { status });
             fetchAssets();
             Swal.fire('Updated', `Asset status changed to ${status}`, 'success');
         } catch (err) {

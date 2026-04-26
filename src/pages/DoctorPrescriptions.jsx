@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Plus, Trash2, Printer, Save, FileText, Search, Loader2 } from 'lucide-react';
 
 const DoctorPrescriptions = () => {
@@ -27,7 +27,7 @@ const DoctorPrescriptions = () => {
   const searchPatients = async () => {
     setIsSearching(true);
     try {
-      const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/patients?search=${searchQuery}`);
+      const res = await API.get(`/patients?search=${searchQuery}`);
       setPatients(res.data);
     } catch (err) {
       console.error("Patient search failed");
@@ -67,7 +67,7 @@ const DoctorPrescriptions = () => {
         visitDate: new Date()
       };
 
-      await axios.post('https://hms-backend-1-uchi.onrender.com/api/medical-records', prescriptionData);
+      await API.post('/medical-records', prescriptionData);
       
       alert(`Smart Billing Sync Complete: ₹${totalEstimate} record generated for ${selectedPatient.name}.`);
       // Reset form

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Video, Phone, MessageSquare, 
     User, Calendar, Clock, 
@@ -6,7 +6,7 @@ import {
     Mic, VideoOff, Settings 
 } from 'lucide-react';
 
-import axios from 'axios';
+import API from '../api/axios';
 
 const Telemedicine = () => {
     const [activeMeeting, setActiveMeeting] = useState(false);
@@ -18,7 +18,7 @@ const Telemedicine = () => {
 
     const fetchCalls = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'https://hms-backend-1-uchi.onrender.com/api'}/telemedicine`);
+            const res = await API.get('/telemedicine');
             setScheduledCalls(res.data);
         } catch (err) {
             console.error("Failed to fetch tele-consultations");

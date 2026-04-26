@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
     Calendar, Clock, User, 
     ArrowLeftRight, Filter, Download, 
@@ -14,8 +14,6 @@ const StaffRoster = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
     useEffect(() => {
         fetchRoster();
         fetchUsers();
@@ -24,7 +22,7 @@ const StaffRoster = () => {
     const fetchRoster = async () => {
         try {
             const dateStr = viewDate.toISOString().split('T')[0];
-            const res = await axios.get(`${API_BASE}/roster?date=${dateStr}`);
+            const res = await API.get(`/roster?date=${dateStr}`);
             setRosterData(res.data);
             setLoading(false);
         } catch (err) {
@@ -35,7 +33,7 @@ const StaffRoster = () => {
 
     const fetchUsers = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/auth/users`); // Assuming this exists or using /patients as backup for demo
+            const res = await API.get('/auth/users');
             setUsers(res.data);
         } catch (err) {
             console.error("Failed to fetch users");

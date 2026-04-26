@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Grid, List, Activity, 
@@ -14,15 +14,13 @@ const WardBeds = () => {
     const [viewMode, setViewMode] = useState('grid');
     const navigate = useNavigate();
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
     useEffect(() => {
         fetchBeds();
     }, []);
 
     const fetchBeds = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/beds`);
+            const res = await API.get('/beds');
             setBeds(res.data);
             setLoading(false);
         } catch (err) {
@@ -60,7 +58,7 @@ const WardBeds = () => {
 
         if (formValues) {
             try {
-                await axios.post(`${API_BASE}/beds`, formValues);
+                await API.post('/beds', formValues);
                 Swal.fire('Provisioned!', 'New bed unit has been initialized.', 'success');
                 fetchBeds();
             } catch (err) {
@@ -81,7 +79,7 @@ const WardBeds = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.put(`${API_BASE}/beds/${id}/discharge`);
+                await API.put(`/beds/${id}/discharge`);
                 fetchBeds();
                 Swal.fire('Cleared!', 'Bed is now available.', 'success');
             } catch (err) {
