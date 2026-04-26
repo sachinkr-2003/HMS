@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/dashboard/admin-stats`);
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/dashboard/admin-stats`);
                 setStats(res.data);
                 setLoading(false);
             } catch (err) {
@@ -59,7 +59,7 @@ const AdminDashboard = () => {
                         <span className="text-[10px] font-bold text-gray-400 uppercase">Revenue</span>
                         <div className="p-1.5 bg-green-50 text-green-600 rounded-lg"><DollarSign size={16} /></div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">₹{stats.revenue.toLocaleString()}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">₹{(stats?.revenue || 0).toLocaleString()}</h3>
                 </div>
 
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
                         <span className="text-[10px] font-bold text-gray-400 uppercase">Patients</span>
                         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Users size={16} /></div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">{stats.patientCount}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">{stats?.patientCount || 0}</h3>
                 </div>
 
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
                         <span className="text-[10px] font-bold text-gray-400 uppercase">Appointments</span>
                         <div className="p-1.5 bg-orange-50 text-orange-600 rounded-lg"><Activity size={16} /></div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">{stats.appointmentsToday}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">{stats?.appointmentsToday || 0}</h3>
                 </div>
 
                 <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -83,9 +83,9 @@ const AdminDashboard = () => {
                         <span className="text-[10px] font-bold text-gray-400 uppercase">Beds</span>
                         <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg"><Bed size={16} /></div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900">{stats.occupancyRate}%</h3>
+                    <h3 className="text-lg font-bold text-gray-900">{stats?.occupancyRate || 0}%</h3>
                     <div className="mt-1 w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-indigo-600 h-full transition-all duration-1000" style={{ width: `${stats.occupancyRate}%` }} />
+                        <div className="bg-indigo-600 h-full transition-all duration-1000" style={{ width: `${stats?.occupancyRate || 0}%` }} />
                     </div>
                 </div>
             </div>
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
                                 <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all"><Pill size={24}/></div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-400 uppercase mb-1">Pharmacy Stock</p>
-                                    <h4 className="text-lg font-bold text-gray-800">{stats.medicineCount} Medicines Available</h4>
+                                    <h4 className="text-lg font-bold text-gray-800">{stats?.medicineCount || 0} Medicines Available</h4>
                                 </div>
                             </div>
                         </div>
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
                                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all"><Microscope size={24}/></div>
                                 <div>
                                     <p className="text-xs font-bold text-gray-400 uppercase mb-1">Lab Services</p>
-                                    <h4 className="text-lg font-bold text-gray-800">{stats.pendingLabs} Pending Reports</h4>
+                                    <h4 className="text-lg font-bold text-gray-800">{stats?.pendingLabs || 0} Pending Reports</h4>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ const AdminDashboard = () => {
                             </div>
                             <h2 className="text-xl font-bold mb-2">System Status: Active</h2>
                             <p className="text-sm text-blue-100 font-medium">
-                                Everything is running smoothly. Total staff members: <span className="font-bold text-white border-b border-white/50">{stats.staffCount}</span>.
+                                Everything is running smoothly. Total staff members: <span className="font-bold text-white border-b border-white/50">{stats?.staffCount || 0}</span>.
                             </p>
                         </div>
                         <div className="absolute top-0 right-0 p-4 opacity-10">
