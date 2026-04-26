@@ -114,8 +114,19 @@ const Sidebar = ({ role, isOpen, setIsOpen }) => {
       {/* Brand Section */}
       <div className="p-8 pb-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-600 rounded-lg text-white">
-            <Stethoscope size={24} />
+          <div className="w-16 h-16 flex items-center justify-center relative group">
+            <img 
+              src="/logo.png" 
+              alt="HealthRekha Logo" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className="hidden absolute inset-0 items-center justify-center bg-blue-600 text-white font-black text-2xl">
+              H
+            </div>
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-bold text-white leading-none tracking-tight">HealthRekha</span>

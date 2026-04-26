@@ -74,11 +74,12 @@ const StaffRoster = () => {
 
         if (formValues) {
             try {
-                await axios.post(`${API_BASE}/roster`, formValues);
+                await axios.post(`${API_BASE}/roster/assign`, formValues);
                 Swal.fire('Assigned!', 'Staff shift has been registered.', 'success');
                 fetchRoster();
             } catch (err) {
-                Swal.fire('Error', 'Shift assignment failed.', 'error');
+                const msg = err.response?.data?.message || 'Shift assignment failed.';
+                Swal.fire('Error', msg, 'error');
             }
         }
     };

@@ -60,8 +60,9 @@ const Login = () => {
 
                     {/* Branding Top */}
                     <div className="relative z-20 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-600 rounded flex items-center justify-center shadow-2xl shadow-blue-500/20">
-                            <Building2 className="text-white" size={24} />
+                        <div className="w-16 h-16 flex items-center justify-center relative">
+                            <img src="/logo.png" alt="HealthRekha Logo" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                             <div className="hidden absolute inset-0 items-center justify-center bg-blue-600 text-white font-black text-2xl">H</div>
                         </div>
                         <span className="text-2xl font-bold tracking-tighter text-white uppercase">HealthRekha <span className="text-blue-500">ERP</span></span>
                     </div>
@@ -98,8 +99,9 @@ const Login = () => {
                     <div className="max-w-md mx-auto w-full px-6 py-12 lg:py-0">
                         {/* Mobile Logo Only */}
                         <div className="mb-8 lg:hidden flex flex-col items-center">
-                            <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-xl shadow-blue-100">
-                                <Building2 className="text-white" size={28} />
+                            <div className="w-20 h-20 flex items-center justify-center mb-4 relative">
+                                <img src="/logo.png" alt="HealthRekha Logo" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                                <div className="hidden absolute inset-0 items-center justify-center bg-blue-600 text-white font-black text-3xl">H</div>
                             </div>
                             <h2 className="text-xl font-black text-gray-900 tracking-tighter uppercase">HealthRekha ERP</h2>
                         </div>
