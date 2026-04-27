@@ -22,7 +22,7 @@ const AdminUsers = () => {
         try {
             setLoading(true);
             const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users`);
-            setUsers(res.data);
+            setUsers(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
             console.error("User Registry Failure:", err);
@@ -147,7 +147,7 @@ const AdminUsers = () => {
                 </div>
                 <div className="p-5 bg-gray-900 rounded-xl border border-gray-800 shadow-xl border-l-4 border-l-blue-500">
                     <p className="text-blue-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 font-mono text-right">Primary Control Units</p>
-                    <h3 className="text-2xl font-bold text-white text-right">{(users?.filter(u => u?.role === 'admin').length || 0).toString().padStart(2, '0')}</h3>
+                    <h3 className="text-2xl font-bold text-white text-right">{(Array.isArray(users) ? users.filter(u => u?.role === 'admin').length : 0).toString().padStart(2, '0')}</h3>
                 </div>
             </div>
 
@@ -175,7 +175,7 @@ const AdminUsers = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {users.map((user) => (
+                            {Array.isArray(users) && users.map((user) => (
                                 <tr key={user._id} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-4">
