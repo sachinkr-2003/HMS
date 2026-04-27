@@ -5,13 +5,12 @@ import { Search, DollarSign, FileText, CheckCircle, Clock, Download, ExternalLin
 const PatientBilling = () => {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/billing`);
-        setBills(res.data);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/billing`);
+        setBills(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch bills");
       } finally {
@@ -23,7 +22,8 @@ const PatientBilling = () => {
 
   const handleDownload = async (id) => {
     try {
-      window.open(`${API_BASE}/billing-download/${id}`, '_blank');
+      const BASE = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api');
+      window.open(`${BASE}/billing-download/${id}`, '_blank');
     } catch (err) {
       console.error("Download failed");
     }
@@ -31,7 +31,7 @@ const PatientBilling = () => {
 
   if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
-  const totalUnpaid = bills.filter(b => b.status !== 'Paid').reduce((acc, curr) => acc + (curr.totalAmount - (curr.paidAmount || 0)), 0);
+  const totalUnpaid = (Array.isArray(bills) ? bills : []).filter(b => b?.status !== 'Paid').reduce((acc, curr) => acc + ((curr?.totalAmount || 0) - (curr?.paidAmount || 0)), 0);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -66,7 +66,7 @@ const PatientBilling = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {bills.length === 0 ? (
+                  {(!Array.isArray(bills) || bills.length === 0) ? (
                     <tr>
                       <td colSpan="5" className="px-6 py-10 text-center text-gray-400 italic">No billing records found.</td>
                     </tr>

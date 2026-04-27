@@ -17,14 +17,15 @@ const PharmacyDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`);
-                const allMeds = res.data;
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`);
+                const allMeds = Array.isArray(res.data) ? res.data : [];
                 
-                const lowStock = allMeds.filter(m => m.stock < (m.minStockLevel || 10));
+                const lowStock = allMeds.filter(m => m?.stock < (m?.minStockLevel || 10));
                 
                 // Fetch Expiring Meds
-                const expiryRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pharmacy/expiry`);
-                setExpiringMeds(expiryRes.data);
+                const expiryRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy/expiry`);
+                const expData = Array.isArray(expiryRes.data) ? expiryRes.data : [];
+                setExpiringMeds(expData);
 
                 setStats({
                     totalMedicines: allMeds.length,
@@ -87,7 +88,7 @@ const PharmacyDashboard = () => {
                             <button className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">View All Alerts</button>
                         </div>
                         <div className="divide-y divide-gray-50 font-inter min-h-[200px]">
-                            {lowStockMeds.length === 0 ? (
+                            {(!Array.isArray(lowStockMeds) || lowStockMeds.length === 0) ? (
                                 <div className="p-12 text-center text-gray-400 text-xs font-bold uppercase tracking-widest">No critical stock depletion detected.</div>
                             ) : lowStockMeds.map((item, i) => (
                                 <div key={item._id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-all group">

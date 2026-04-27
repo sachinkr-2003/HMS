@@ -31,8 +31,8 @@ const PharmacyInventory = () => {
 
     const fetchInventory = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`);
-            setInventory(res.data);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`);
+            setInventory(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
             console.error("Inventory Sync Error");
@@ -48,7 +48,7 @@ const PharmacyInventory = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`, formData);
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`, formData);
             Swal.fire({
                 icon: 'success',
                 title: 'Inventory Updated',
@@ -77,7 +77,7 @@ const PharmacyInventory = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/pharmacy/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy/${id}`);
                 fetchInventory();
                 Swal.fire('Decommissioned!', 'Item removed from ledger.', 'success');
             } catch (err) {
@@ -169,7 +169,7 @@ const PharmacyInventory = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {inventory.length === 0 ? (
+                            {(!Array.isArray(inventory) || inventory.length === 0) ? (
                                 <tr>
                                     <td colSpan="6" className="px-8 py-20 text-center text-gray-400 font-bold uppercase text-xs tracking-widest">No active SKUs detected in institutional ledger.</td>
                                 </tr>
@@ -230,7 +230,7 @@ const PharmacyInventory = () => {
                 <div className="p-8 bg-gray-50/50 flex justify-end gap-10">
                     <div className="text-right">
                         <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Valuation</p>
-                        <p className="text-xl font-bold text-gray-900">₹{inventory.reduce((acc, curr) => acc + (curr.price * curr.stock), 0).toLocaleString()}</p>
+                        <p className="text-xl font-bold text-gray-900">₹{(Array.isArray(inventory) ? inventory.reduce((acc, curr) => acc + ((curr?.price || 0) * (curr?.stock || 0)), 0) : 0).toLocaleString()}</p>
                     </div>
                 </div>
             </div>
