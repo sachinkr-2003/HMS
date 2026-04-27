@@ -29,8 +29,8 @@ const AdminPharmacy = () => {
 
     const fetchMedicines = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`);
-            setMedicines(res.data);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`);
+            setMedicines(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch medicines");
@@ -46,7 +46,7 @@ const AdminPharmacy = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/pharmacy`, formData);
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`, formData);
             Swal.fire({
                 icon: 'success',
                 title: 'Stock Updated',
@@ -76,7 +76,7 @@ const AdminPharmacy = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/pharmacy/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy/${id}`);
                 fetchMedicines();
                 Swal.fire('Deleted!', 'Medicine removed.', 'success');
             } catch (err) {
@@ -107,15 +107,15 @@ const AdminPharmacy = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Stocked Items</p>
-                    <h3 className="text-xl font-bold text-gray-900">{medicines.length} Medicines</h3>
+                    <h3 className="text-xl font-bold text-gray-900">{(Array.isArray(medicines) ? medicines.length : 0)} Medicines</h3>
                 </div>
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Low Stock Warning</p>
-                    <h3 className="text-xl font-bold text-red-500">{medicines.filter(m => m.stock < 10).length} Items</h3>
+                    <h3 className="text-xl font-bold text-red-500">{(Array.isArray(medicines) ? medicines.filter(m => m?.stock < 10).length : 0)} Items</h3>
                 </div>
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Valuation</p>
-                    <h3 className="text-xl font-bold text-gray-900">₹{medicines.reduce((acc, m) => acc + (m.price * m.stock), 0).toLocaleString()}</h3>
+                    <h3 className="text-xl font-bold text-gray-900">₹{(Array.isArray(medicines) ? medicines.reduce((acc, m) => acc + ((m?.price || 0) * (m?.stock || 0)), 0) : 0).toLocaleString()}</h3>
                 </div>
             </div>
 
@@ -204,7 +204,7 @@ const AdminPharmacy = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {medicines.length === 0 ? (
+                            {(!Array.isArray(medicines) || medicines.length === 0) ? (
                                 <tr>
                                     <td colSpan="6" className="px-8 py-12 text-center text-gray-400 font-bold uppercase text-xs tracking-widest">No stock found in inventory.</td>
                                 </tr>
