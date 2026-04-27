@@ -7,12 +7,10 @@ const AdminBilling = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await axios.get(`${API_BASE}/dashboard/admin-stats`);
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/dashboard/admin-stats`);
                 setStats(res.data);
                 setLoading(false);
             } catch (err) {

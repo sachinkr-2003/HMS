@@ -25,18 +25,18 @@ const DoctorDashboard = () => {
         try {
             setLoading(true);
             // 1. Get Doctor Profile
-            const profileRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/doctors/me`);
+            const profileRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/doctors/me`);
             const doctorId = profileRes.data._id;
 
             // 2. Get Appointments for this Doctor
-            const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments/doctor/${doctorId}`);
+            const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments/doctor/${doctorId}`);
             
-            // Filter only today's appointments if needed, but for now we'll show all assigned
-            setAppointments(aptRes.data);
+            const aptData = Array.isArray(aptRes.data) ? aptRes.data : [];
+            setAppointments(aptData);
             
             setStats(prev => ({
                 ...prev,
-                todayAppointments: aptRes.data.length,
+                todayAppointments: aptData.length,
             }));
             setLoading(false);
         } catch (err) {
@@ -56,7 +56,7 @@ const DoctorDashboard = () => {
         if (!rawNotes.trim()) return;
         setIsAILoading(true);
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ai/structure-notes`, { rawNotes });
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/ai/structure-notes`, { rawNotes });
             setStructuredNotes(res.data.structuredNotes);
         } catch (err) {
             setStructuredNotes("Subjective: Patient reports mild cough and low fever (3 days).\nObjective: Pharyngeal erythema present. Temp 100.2F.\nAssessment: Acute viral pharyngitis.\nPlan: Paracetamol 650mg TDS, hydration, follow up.");
@@ -158,7 +158,7 @@ const DoctorDashboard = () => {
                             <h2 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest">Diagnostic Queue</h2>
                         </div>
                         <div className="divide-y divide-gray-100">
-                            {appointments.length === 0 ? (
+                            {(!Array.isArray(appointments) || appointments.length === 0) ? (
                                 <div className="p-10 text-center text-gray-400 text-xs font-bold uppercase">No Active Bookings Today</div>
                             ) : appointments.map((app, i) => (
                                 <div key={app._id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-all cursor-pointer group">

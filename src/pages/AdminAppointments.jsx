@@ -28,8 +28,8 @@ const AdminAppointments = () => {
 
     const fetchAppointments = async () => {
         try {
-            const res = await axios.get(`${API_BASE}/appointments`);
-            setAppointments(res.data);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments`);
+            setAppointments(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
             setError("Connection to appointment registry failed.");
@@ -41,11 +41,11 @@ const AdminAppointments = () => {
     const fetchPatientsAndDoctors = async () => {
         try {
             const [pRes, dRes] = await Promise.all([
-                axios.get(`${API_BASE}/patients`),
-                axios.get(`${API_BASE}/doctors`)
+                axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/patients`),
+                axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/doctors`)
             ]);
-            setPatients(pRes.data);
-            setDoctors(dRes.data);
+            setPatients(Array.isArray(pRes.data) ? pRes.data : []);
+            setDoctors(Array.isArray(dRes.data) ? dRes.data : []);
         } catch (err) {
             console.error("Failed to fetch registry data");
         }
@@ -53,7 +53,7 @@ const AdminAppointments = () => {
 
     const handleUpdateStatus = async (id, status) => {
         try {
-            await axios.put(`${API_BASE}/appointments/${id}/status`, { status });
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments/${id}/status`, { status });
             fetchAppointments(); // Refresh
         } catch (err) {
             console.error("Update failed");
@@ -74,7 +74,7 @@ const AdminAppointments = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await axios.post(`${API_BASE}/appointments`, formData);
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments`, formData);
             await fetchAppointments();
             setShowModal(false);
         } catch (err) {
@@ -128,7 +128,7 @@ const AdminAppointments = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {appointments.length === 0 ? (
+                            {(!Array.isArray(appointments) || appointments.length === 0) ? (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-20 text-center text-gray-400 font-medium text-sm italic">
                                         No active bookings registered in the system.
@@ -224,8 +224,8 @@ const AdminAppointments = () => {
                                     onChange={(e) => setFormData({...formData, patientId: e.target.value})}
                                 >
                                     <option value="">Choose Patient...</option>
-                                    {patients.map(p => (
-                                        <option key={p._id} value={p._id}>{p.name}</option>
+                                    {Array.isArray(patients) && patients.map(p => (
+                                        <option key={p._id} value={p._id}>{p?.name || 'Unknown Patient'}</option>
                                     ))}
                                 </select>
                             </div>
@@ -239,8 +239,8 @@ const AdminAppointments = () => {
                                     onChange={(e) => setFormData({...formData, doctorId: e.target.value})}
                                 >
                                     <option value="">Choose Doctor...</option>
-                                    {doctors.map(d => (
-                                        <option key={d._id} value={d._id}>{d.user?.name} ({d.specialization})</option>
+                                    {Array.isArray(doctors) && doctors.map(d => (
+                                        <option key={d._id} value={d._id}>{d?.user?.name || 'Unnamed Specialist'} ({d?.specialization || 'General'})</option>
                                     ))}
                                 </select>
                             </div>

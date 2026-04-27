@@ -9,8 +9,8 @@ const AdminLab = () => {
     useEffect(() => {
         const fetchTests = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/lab`);
-                setTests(res.data);
+                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/lab`);
+                setTests(Array.isArray(res.data) ? res.data : []);
                 setLoading(false);
             } catch (err) {
                 console.error("Lab Data Sync Failure");
@@ -23,9 +23,9 @@ const AdminLab = () => {
     if (loading) return <div className="h-96 flex items-center justify-center"><Loader2 className="animate-spin text-blue-600" size={32} /></div>;
 
     const stats = {
-        total: tests.length,
-        pending: tests.filter(t => t.status === 'Pending').length,
-        completedToday: tests.filter(t => t.status === 'Completed').length, // Filter by today's date if needed
+        total: Array.isArray(tests) ? tests.length : 0,
+        pending: Array.isArray(tests) ? tests.filter(t => t?.status === 'Pending').length : 0,
+        completedToday: Array.isArray(tests) ? tests.filter(t => t?.status === 'Completed').length : 0,
     };
 
     return (
@@ -72,7 +72,7 @@ const AdminLab = () => {
                         <h2 className="text-xs font-black text-gray-700 uppercase tracking-widest">Active Investigation Queue</h2>
                         <Database size={16} className="text-blue-500" />
                     </div>
-                    {tests.length === 0 ? (
+                    {(!Array.isArray(tests) || tests.length === 0) ? (
                         <div className="p-20 text-center flex flex-col items-center">
                             <TestTube size={48} className="text-gray-100 mb-4" />
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Zero Investigations Tracked</p>
