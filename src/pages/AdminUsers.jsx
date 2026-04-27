@@ -21,7 +21,7 @@ const AdminUsers = () => {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/auth/users`);
+            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users`);
             setUsers(res.data);
             setLoading(false);
         } catch (err) {
@@ -58,7 +58,7 @@ const AdminUsers = () => {
         try {
             const dataToSubmit = { ...formData, role: formData.role.toLowerCase() };
             if (editingUser) {
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/auth/users/${editingUser._id}`, dataToSubmit);
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users/${editingUser._id}`, dataToSubmit);
                 Swal.fire({
                     icon: 'success',
                     title: 'Credentials Adjusted',
@@ -66,7 +66,7 @@ const AdminUsers = () => {
                     confirmButtonColor: '#2563eb'
                 });
             } else {
-                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, dataToSubmit);
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/register`, dataToSubmit);
                 Swal.fire({
                     icon: 'success',
                     title: 'Access Granted',
@@ -108,7 +108,7 @@ const AdminUsers = () => {
                     Swal.fire('Protocol Violation', 'Primary Admin cannot be terminated.', 'error');
                     return;
                 }
-                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/auth/users/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users/${id}`);
                 await fetchUsers();
                 Swal.fire('Deleted!', 'User access has been neutralized.', 'success');
             } catch (err) {
@@ -139,15 +139,15 @@ const AdminUsers = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md">
                     <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 font-mono">Total Hospital Staff</p>
-                    <h3 className="text-2xl font-bold text-gray-900">{users.length.toString().padStart(2, '0')} units</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{(users?.length || 0).toString().padStart(2, '0')} units</h3>
                 </div>
                 <div className="p-5 bg-white rounded-xl border border-gray-200 shadow-sm transition-all hover:shadow-md border-l-4 border-l-emerald-500">
                     <p className="text-emerald-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 font-mono text-center">Active Authenticated Units</p>
-                    <h3 className="text-2xl font-bold text-gray-900 text-center">{users.length.toString().padStart(2, '0')}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 text-center">{(users?.length || 0).toString().padStart(2, '0')}</h3>
                 </div>
                 <div className="p-5 bg-gray-900 rounded-xl border border-gray-800 shadow-xl border-l-4 border-l-blue-500">
                     <p className="text-blue-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2 font-mono text-right">Primary Control Units</p>
-                    <h3 className="text-2xl font-bold text-white text-right">{users.filter(u => u.role === 'admin').length.toString().padStart(2, '0')}</h3>
+                    <h3 className="text-2xl font-bold text-white text-right">{(users?.filter(u => u?.role === 'admin').length || 0).toString().padStart(2, '0')}</h3>
                 </div>
             </div>
 
@@ -180,7 +180,7 @@ const AdminUsers = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-xl bg-gray-900 text-blue-400 flex items-center justify-center font-bold text-base uppercase shadow-lg shadow-blue-100/10">
-                                                {user.name[0]}
+                                                {user?.name?.[0] || 'U'}
                                             </div>
                                             <div>
                                                 <p className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">{user.name}</p>
