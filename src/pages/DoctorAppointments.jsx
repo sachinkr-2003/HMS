@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Search, Calendar, Clock, CheckCircle, XCircle, MoreVertical, Loader2, User, Phone, Clipboard, ArrowRight } from 'lucide-react';
 
 const DoctorAppointments = () => {
@@ -12,8 +12,9 @@ const DoctorAppointments = () => {
 
     const fetchAppointments = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments`);
-            setAppointments(res.data);
+            const res = await API.get('/appointments');
+            // Ensure data is an array
+            setAppointments(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch appointments");
@@ -25,7 +26,7 @@ const DoctorAppointments = () => {
 
     const handleStatusChange = async (id, status) => {
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/appointments/${id}/status`, { status });
+            await API.put(`/appointments/${id}/status`, { status });
             fetchAppointments();
         } catch (err) {
             console.error("Update failed");

@@ -19,9 +19,10 @@ const Telemedicine = () => {
     const fetchCalls = async () => {
         try {
             const res = await API.get('/telemedicine');
-            setScheduledCalls(res.data);
+            setScheduledCalls(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error("Failed to fetch tele-consultations");
+            setScheduledCalls([]);
         }
     };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
     Calendar, Users, Clock, AlertCircle, 
     CheckCircle, History, ExternalLink, 
@@ -25,11 +25,11 @@ const DoctorDashboard = () => {
         try {
             setLoading(true);
             // 1. Get Doctor Profile
-            const profileRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/doctors/me`);
+            const profileRes = await API.get('/doctors/me');
             const doctorId = profileRes.data._id;
 
             // 2. Get Appointments for this Doctor
-            const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments/doctor/${doctorId}`);
+            const aptRes = await API.get(`/appointments/doctor/${doctorId}`);
             
             const aptData = Array.isArray(aptRes.data) ? aptRes.data : [];
             setAppointments(aptData);
@@ -56,7 +56,7 @@ const DoctorDashboard = () => {
         if (!rawNotes.trim()) return;
         setIsAILoading(true);
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/ai/structure-notes`, { rawNotes });
+            const res = await API.post('/ai/structure-notes', { rawNotes });
             setStructuredNotes(res.data.structuredNotes);
         } catch (err) {
             setStructuredNotes("Subjective: Patient reports mild cough and low fever (3 days).\nObjective: Pharyngeal erythema present. Temp 100.2F.\nAssessment: Acute viral pharyngitis.\nPlan: Paracetamol 650mg TDS, hydration, follow up.");
