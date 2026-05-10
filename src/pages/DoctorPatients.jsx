@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, FileText, History, ExternalLink, Filter, X, Activity, Pill, Thermometer, Heart } from 'lucide-react';
-
+import { Search, User, FileText, History, ExternalLink, Filter, X, Activity, Pill, Thermometer, Heart, CheckCircle } from 'lucide-react';
+import Swal from 'sweetalert2';
 const patientList = [
   { id: 'PAT-8821', name: 'Anika Singh', age: 24, gender: 'Female', lastVisit: '15 Apr 2026', condition: 'Viral Fever', vitals: { bp: '120/80', hr: '72', temp: '98.6' } },
   { id: 'PAT-8822', name: 'Rohan Mehta', age: 32, gender: 'Male', lastVisit: '10 Apr 2026', condition: 'Hypertension', vitals: { bp: '140/90', hr: '84', temp: '98.4' } },
@@ -25,7 +25,10 @@ const DoctorPatients = () => {
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Patient EMR Records</h1>
                     <p className="text-slate-500 text-sm font-medium mt-1">Access full medical history and records of your patients.</p>
                 </div>
-                <button className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100 uppercase tracking-wider text-xs">
+                <button 
+                    onClick={() => Swal.fire('Coming Soon', 'Patient search functionality is under development', 'info')}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100 uppercase tracking-wider text-xs"
+                >
                     <Search size={16} /> Find Patient
                 </button>
             </div>
@@ -43,7 +46,10 @@ const DoctorPatients = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button className="flex items-center gap-2 px-4 py-2 text-slate-500 text-xs font-bold uppercase tracking-widest hover:bg-white rounded-lg border border-slate-100 transition-all">
+                        <button 
+                            onClick={() => Swal.fire('Coming Soon', 'Advanced filters will be available soon', 'info')}
+                            className="flex items-center gap-2 px-4 py-2 text-slate-500 text-xs font-bold uppercase tracking-widest hover:bg-white rounded-lg border border-slate-100 transition-all"
+                        >
                             <Filter size={14} /> Filter
                         </button>
                     </div>
@@ -174,7 +180,10 @@ const DoctorPatients = () => {
                                         </div>
                                     ))}
                                 </div>
-                                <button className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-2 mt-4 shadow-xl shadow-slate-100">
+                                <button 
+                                    onClick={() => Swal.fire('Success', 'Clinical Report generated successfully!', 'success')}
+                                    className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-2 mt-4 shadow-xl shadow-slate-100"
+                                >
                                     <FileText size={16} /> Generate Clinical Report
                                 </button>
                             </div>
