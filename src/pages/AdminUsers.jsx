@@ -226,52 +226,54 @@ const AdminUsers = () => {
 
             {/* Master Unit Control Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <div>
-                                <h2 className="text-base font-bold text-gray-800 uppercase tracking-widest">{editingUser ? 'Adjust Access Clearance' : 'Grant New Access'}</h2>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Institutional Credential Registry</p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-md rounded-md shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-200">
+                        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <UserPlus size={20} className="text-blue-600" />
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900">{editingUser ? 'Update User Account' : 'Grant New Access'}</h2>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-                                <X size={18} className="text-gray-400" />
+                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <X size={20} />
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
                             {error && (
-                                <div className="p-4 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-3 text-rose-600">
-                                    <AlertCircle size={18} />
-                                    <p className="text-[10px] font-bold uppercase tracking-widest">{error}</p>
+                                <div className="p-3 bg-rose-50 border border-rose-100 rounded-md flex items-center gap-2 text-rose-600 text-sm font-medium">
+                                    <AlertCircle size={16} />
+                                    {error}
                                 </div>
                             )}
-                            <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Staff Full Name</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Staff Full Name</label>
                                 <input 
                                     type="text" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                     placeholder="e.g. Rahul Sharma"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Email Address</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Email Address</label>
                                 <input 
                                     type="email" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-semibold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                                     placeholder="name@hospital.com"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">Account Role</label>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-gray-700 uppercase">Account Role</label>
                                     <select 
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-xs font-bold text-gray-700"
+                                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                         value={formData.role}
                                         onChange={(e) => setFormData({...formData, role: e.target.value})}
                                     >
@@ -284,12 +286,12 @@ const AdminUsers = () => {
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide ml-1">{editingUser ? 'New Password' : 'Password'}</label>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-semibold text-gray-700 uppercase">{editingUser ? 'New Password' : 'Password'}</label>
                                     <input 
                                         type="password" 
                                         required={!editingUser}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm"
+                                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                         value={formData.password}
                                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                                         placeholder="Min 6 characters"
@@ -297,13 +299,19 @@ const AdminUsers = () => {
                                 </div>
                             </div>
                             
-                            <button 
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full py-4 mt-2 bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-blue-700 shadow-xl transition-all active:scale-95 disabled:bg-gray-400 flex items-center justify-center gap-3"
-                            >
-                                {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (editingUser ? "Update User Account" : "Register New Staff")}
-                            </button>
+                            <div className="pt-2">
+                                <button 
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full py-2.5 bg-blue-600 text-white rounded-md font-semibold text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:bg-gray-400"
+                                >
+                                    {isSubmitting ? (
+                                        <><Loader2 className="animate-spin" size={16} /> Processing...</>
+                                    ) : (
+                                        <><UserPlus size={16} /> {editingUser ? "Update User Account" : "Register New Staff"}</>
+                                    )}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

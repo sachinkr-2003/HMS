@@ -195,31 +195,33 @@ const AdminAppointments = () => {
 
             {/* Booking Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
-                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <div>
-                                <h2 className="text-base font-bold text-gray-800 uppercase tracking-widest">New Appointment</h2>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Institutional Scheduling Module</p>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-md rounded-md shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-200">
+                        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Calendar size={20} className="text-blue-600" />
+                                <div>
+                                    <h2 className="text-base font-bold text-gray-900">New Appointment</h2>
+                                </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-                                <X size={18} className="text-gray-400" />
+                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <X size={20} />
                             </button>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-5 space-y-4">
                             {error && (
-                                <div className="p-4 bg-rose-50 border border-rose-100 rounded-lg flex items-center gap-3 text-rose-600">
-                                    <AlertCircle size={18} />
-                                    <p className="text-[10px] font-bold uppercase tracking-widest">{error}</p>
+                                <div className="p-3 bg-rose-50 border border-rose-100 rounded-md flex items-center gap-2 text-rose-600 text-sm font-medium">
+                                    <AlertCircle size={16} />
+                                    {error}
                                 </div>
                             )}
                             
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Select Patient</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Select Patient</label>
                                 <select 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     value={formData.patientId}
                                     onChange={(e) => setFormData({...formData, patientId: e.target.value})}
                                 >
@@ -230,11 +232,11 @@ const AdminAppointments = () => {
                                 </select>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Assigned Specialist</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Assigned Specialist</label>
                                 <select 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     value={formData.doctorId}
                                     onChange={(e) => setFormData({...formData, doctorId: e.target.value})}
                                 >
@@ -245,21 +247,21 @@ const AdminAppointments = () => {
                                 </select>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Schedule Date & Time</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Schedule Date & Time</label>
                                 <input 
                                     type="datetime-local" 
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     value={formData.appointmentDate}
                                     onChange={(e) => setFormData({...formData, appointmentDate: e.target.value})}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Reason for Visit</label>
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase">Reason for Visit</label>
                                 <textarea 
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-sm font-bold text-gray-700"
+                                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                     rows="3"
                                     value={formData.reason}
                                     onChange={(e) => setFormData({...formData, reason: e.target.value})}
@@ -267,13 +269,19 @@ const AdminAppointments = () => {
                                 ></textarea>
                             </div>
                             
-                            <button 
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full py-4 mt-4 bg-gray-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all active:scale-95 disabled:bg-gray-400 flex items-center justify-center gap-3"
-                            >
-                                {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : "Authorize Secure Booking"}
-                            </button>
+                            <div className="pt-2">
+                                <button 
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full py-2.5 bg-blue-600 text-white rounded-md font-semibold text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:bg-gray-400"
+                                >
+                                    {isSubmitting ? (
+                                        <><Loader2 className="animate-spin" size={16} /> Processing...</>
+                                    ) : (
+                                        <><Calendar size={16} /> Complete Booking</>
+                                    )}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import Swal from 'sweetalert2';
 import { 
   UserPlus, 
@@ -35,11 +35,11 @@ const StaffDashboard = () => {
     const fetchData = async () => {
         try {
             // 1. Fetch Doctors
-            const docRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/doctors`);
+            const docRes = await axios.get('/doctors');
             setDoctors(docRes.data);
 
             // 2. Fetch Today's Appointments for the Queue
-            const aptRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/appointments`);
+            const aptRes = await axios.get('/appointments');
             const today = new Date().setHours(0,0,0,0);
             const todayApts = aptRes.data.filter(a => new Date(a.appointmentDate).setHours(0,0,0,0) === today);
             
@@ -62,9 +62,9 @@ const StaffDashboard = () => {
         e.preventDefault();
         if(!formData.firstName || !formData.phone || !formData.doctorId) {
             Swal.fire({
-                icon: 'error',
-                title: 'Missing Information',
-                text: 'Institutional protocol requires all primary fields to be populated.',
+                icon: 'warning',
+                title: 'Missing Details',
+                text: 'Please fill out all the required fields before submitting.',
                 confirmButtonColor: '#2563eb'
             });
             return;
@@ -72,8 +72,8 @@ const StaffDashboard = () => {
 
         try {
             Swal.fire({
-                title: 'Processing Induction...',
-                html: 'Please wait while we synchronize subject records with the institutional database.',
+                title: 'Adding Patient...',
+                html: 'Please wait while we save the patient details.',
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
@@ -81,7 +81,7 @@ const StaffDashboard = () => {
             });
 
             // 1. Create Patient
-            const patientRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/patients`, {
+            const patientRes = await axios.post('/patients', {
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
                 age: formData.age,
                 gender: formData.gender,
@@ -89,7 +89,7 @@ const StaffDashboard = () => {
             });
 
             // 2. Book Appointment
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/appointments`, {
+            await axios.post('/appointments', {
                 patientId: patientRes.data._id,
                 doctorId: formData.doctorId,
                 appointmentDate: new Date(),
@@ -98,8 +98,8 @@ const StaffDashboard = () => {
 
             Swal.fire({
                 icon: 'success',
-                title: 'Subject Registered',
-                text: `${formData.firstName} has been successfully onboarded & assigned to the clinical queue.`,
+                title: 'Patient Added Successfully!',
+                text: `${formData.firstName} has been registered and their appointment is booked.`,
                 confirmButtonColor: '#2563eb'
             });
             
@@ -108,8 +108,8 @@ const StaffDashboard = () => {
         } catch (err) {
             Swal.fire({
                 icon: 'error',
-                title: 'Synchronization Failure',
-                text: err.response?.data?.message || 'The institutional database rejected the induction request.',
+                title: 'Failed to Add Patient',
+                text: err.response?.data?.message || 'Something went wrong while adding the patient. Please try again.',
                 confirmButtonColor: '#dc2626'
             });
         }
@@ -123,10 +123,27 @@ const StaffDashboard = () => {
                     <p className="text-xs text-gray-500 font-medium mt-1">Institutional reception desk for subject onboarding, queue synchronization & real-time activity surveillance.</p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-600 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
+                    <button 
+                        onClick={() => {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Queue Analytics',
+                                text: `Total Enrollments: ${stats.totalEnrollments} | Active: ${stats.activeAppointments} | Pending: ${stats.pendingQueue}`,
+                                confirmButtonColor: '#2563eb'
+                            });
+                        }}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl font-bold text-gray-600 text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all shadow-sm">
                         Queue Analytics
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100">
+                    <button 
+                        onClick={() => {
+                            const el = document.getElementById('firstNameInput');
+                            if(el) {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                setTimeout(() => el.focus(), 500);
+                            }
+                        }}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md shadow-blue-100">
                         <Plus size={16} /> New Enrollment
                     </button>
                 </div>
@@ -159,6 +176,7 @@ const StaffDashboard = () => {
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <input 
+                                    id="firstNameInput"
                                     type="text" 
                                     placeholder="GIVEN NAME" 
                                     className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 font-mono tracking-tighter" 
@@ -239,7 +257,15 @@ const StaffDashboard = () => {
                                         <span className="text-[8px] bg-blue-600 px-2 py-0.5 rounded text-white font-bold">LIVE</span>
                                     </div>
                                     <p className="text-[11px] font-medium text-gray-300 uppercase tracking-tighter">Dr. Anjali Rao (Neurology Satellite) - Slot 11:20 HRS Ready.</p>
-                                    <button className="mt-3 text-[9px] font-bold text-blue-400 hover:underline uppercase tracking-widest">Execute Immediate Booking</button>
+                                    <button 
+                                        onClick={() => {
+                                            const el = document.getElementById('firstNameInput');
+                                            if(el) {
+                                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                setTimeout(() => el.focus(), 500);
+                                            }
+                                        }}
+                                        className="mt-3 text-[9px] font-bold text-blue-400 hover:underline uppercase tracking-widest">Execute Immediate Booking</button>
                                 </div>
                             </div>
                         </div>
@@ -248,7 +274,19 @@ const StaffDashboard = () => {
                                 <Activity size={14} className="text-gray-500" />
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Queue Latency: 18.4 MINS AVG</p>
                             </div>
-                            <button className="px-3 py-1 bg-white/10 text-white text-[8px] font-bold uppercase rounded border border-white/10 tracking-widest hover:bg-white/20">Sync View</button>
+                            <button 
+                                onClick={() => {
+                                    fetchData();
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'Queue Synced',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                }}
+                                className="px-3 py-1 bg-white/10 text-white text-[8px] font-bold uppercase rounded border border-white/10 tracking-widest hover:bg-white/20">Sync View</button>
                         </div>
                         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                             <UserCheck size={150} />
@@ -285,7 +323,16 @@ const StaffDashboard = () => {
                                         }`}>
                                             {p.status}
                                         </div>
-                                        <button className="p-1.5 text-gray-300 hover:text-gray-600 transition-colors">
+                                        <button 
+                                            onClick={() => {
+                                                Swal.fire({
+                                                    icon: 'info',
+                                                    title: 'Options',
+                                                    text: `Manage patient ${p.patient?.name}`,
+                                                    confirmButtonColor: '#2563eb'
+                                                });
+                                            }}
+                                            className="p-1.5 text-gray-300 hover:text-gray-600 transition-colors">
                                             <MoreVertical size={16} />
                                         </button>
                                     </div>
@@ -293,7 +340,16 @@ const StaffDashboard = () => {
                             ))}
                         </div>
                         <div className="p-4 bg-gray-50/50 border-t border-gray-50 flex justify-center">
-                            <button className="text-[9px] font-bold text-blue-600 uppercase tracking-[0.2em] hover:underline flex items-center gap-2">
+                            <button 
+                                onClick={() => {
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'Influx Ledger',
+                                        text: 'All currently available queue entries are already displayed above.',
+                                        confirmButtonColor: '#2563eb'
+                                    });
+                                }}
+                                className="text-[9px] font-bold text-blue-600 uppercase tracking-[0.2em] hover:underline flex items-center gap-2">
                                 Inspect Full Influx Ledger <ArrowRight size={12} />
                             </button>
                         </div>

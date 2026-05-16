@@ -14,6 +14,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const roles = [
+        { id: 'superadmin', label: 'Super Administrator', icon: ShieldCheck },
         { id: 'admin', label: 'Administrator', icon: ShieldCheck },
         { id: 'doctor', label: 'Medical Doctor', icon: Stethoscope },
         { id: 'staff', label: 'Reception / Staff', icon: UserCircle },

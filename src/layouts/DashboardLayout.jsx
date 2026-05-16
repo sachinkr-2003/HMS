@@ -16,6 +16,7 @@ const DashboardLayout = ({ children }) => {
   
   // Determine role based on URL for testing/demo
   let currentRole = user?.role || 'admin';
+  if (pathname.startsWith('/superadmin')) currentRole = 'superadmin';
   if (pathname.startsWith('/doctor')) currentRole = 'doctor';
   if (pathname.startsWith('/staff')) currentRole = 'staff';
   if (pathname.startsWith('/pharmacy')) currentRole = 'pharmacy';

@@ -18,7 +18,10 @@ import {
   DollarSign,
   X,
   Sparkles,
-  Video
+  Video,
+  Building2,
+  Database,
+  ShieldCheck
 } from 'lucide-react';
 
 const Sidebar = ({ role, isOpen, setIsOpen }) => {
@@ -32,6 +35,23 @@ const Sidebar = ({ role, isOpen, setIsOpen }) => {
   };
 
   const menuItems = {
+    superadmin: [
+      { type: 'header', name: 'Global Network' },
+      { name: 'Dashboard HQ', icon: LayoutDashboard, path: '/superadmin' },
+      { name: 'Hospitals', icon: Building2, path: '/superadmin/hospitals' },
+      { name: 'Global Users', icon: Users, path: '/superadmin/users' },
+      
+      { type: 'header', name: 'Infrastructure' },
+      { name: 'Database & Backups', icon: Database, path: '/superadmin/db' },
+      { name: 'Security & Access', icon: ShieldCheck, path: '/superadmin/security' },
+      { name: 'System Logs', icon: FileText, path: '/superadmin/logs' },
+      
+      { type: 'header', name: 'Billing' },
+      { name: 'SaaS Subscriptions', icon: DollarSign, path: '/superadmin/subscriptions' },
+      
+      { type: 'header', name: 'Configuration' },
+      { name: 'Global Settings', icon: Settings, path: '/superadmin/settings' },
+    ],
     admin: [
       { type: 'header', name: 'Core Management' },
       { name: 'Dashboard', icon: LayoutDashboard, path: '/admin' },

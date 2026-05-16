@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const AuthContext = createContext();
 
@@ -14,6 +15,26 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Add global interceptor for suspended accounts
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 403 && error.response.data?.message === 'ACCOUNT_SUSPENDED') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Access Suspended',
+                text: 'Your hospital account has been suspended by the HealthRekha Super Admin. Please contact support.',
+                confirmButtonColor: '#dc2626',
+                allowOutsideClick: false
+            }).then(() => {
+                logout();
+                window.location.href = '/login';
+            });
+        }
+        return Promise.reject(error);
+      }
+    );
+
     const checkUserLoggedIn = async () => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -33,6 +54,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkUserLoggedIn();
+    
+    return () => {
+        axios.interceptors.response.eject(interceptor);
+    };
   }, []);
 
   const login = async (email, password) => {

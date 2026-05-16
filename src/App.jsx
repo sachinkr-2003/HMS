@@ -8,6 +8,9 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Pages
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminHospitals from './pages/SuperAdminHospitals';
+import SuperAdminPlaceholder from './pages/SuperAdminPlaceholder';
 import AdminUsers from './pages/AdminUsers';
 import AdminAppointments from './pages/AdminAppointments';
 import AdminBilling from './pages/AdminBilling';
@@ -81,6 +84,24 @@ const AppContent = () => {
           <Route path="/" element={
             <ProtectedRoute>
               <Navigate to="/admin" />
+            </ProtectedRoute>
+          } />
+
+          {/* Super Admin Routes */}
+          <Route path="/superadmin/*" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Routes>
+                  <Route path="/" element={<SuperAdminDashboard />} />
+                  <Route path="/hospitals" element={<SuperAdminHospitals />} />
+                  <Route path="/users" element={<SuperAdminPlaceholder title="Global Users" />} />
+                  <Route path="/db" element={<SuperAdminPlaceholder title="Database & Backups" />} />
+                  <Route path="/security" element={<SuperAdminPlaceholder title="Security & Access" />} />
+                  <Route path="/logs" element={<SuperAdminPlaceholder title="System Logs" />} />
+                  <Route path="/subscriptions" element={<SuperAdminPlaceholder title="SaaS Subscriptions" />} />
+                  <Route path="/settings" element={<AdminSettings />} />
+                </Routes>
+              </DashboardLayout>
             </ProtectedRoute>
           } />
 
