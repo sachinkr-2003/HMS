@@ -72,7 +72,7 @@ const StaffRoster = () => {
 
         if (formValues) {
             try {
-                await axios.post(`${API_BASE}/roster/assign`, formValues);
+                await API.post('/roster/assign', formValues);
                 Swal.fire('Assigned!', 'Staff shift has been registered.', 'success');
                 fetchRoster();
             } catch (err) {
