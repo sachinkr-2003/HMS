@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
     Calendar, FileText, Pill, DollarSign, Activity, 
     MessageSquare, Send, BrainCircuit, Loader2, User, 
@@ -25,10 +25,10 @@ const PatientDashboard = () => {
         setIsTyping(true);
 
         try {
-            const res = await axios.post('https://hms-backend-1-uchi.onrender.com/api/ai/chat', { query: userMsg.content });
+            const res = await API.post('/ai/chat', { query: userMsg.content });
             setChatHistory(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
         } catch (err) {
-            setChatHistory(prev => [...prev, { role: 'assistant', content: "AI system is currently unavailable. Please try later." }]);
+            setChatHistory(prev => [...prev, { role: 'assistant', content: 'AI system is currently unavailable. Please try later.' }]);
         } finally {
             setIsTyping(false);
         }

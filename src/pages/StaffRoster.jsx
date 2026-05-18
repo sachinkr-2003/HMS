@@ -100,11 +100,11 @@ const StaffRoster = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-sm">
-                        <button onClick={() => setViewDate(new Date(viewDate.setDate(viewDate.getDate() - 1)))} className="p-2 hover:bg-gray-50 rounded-lg"><ChevronLeft size={16} /></button>
+                        <button onClick={() => { const d = new Date(viewDate); d.setDate(d.getDate() - 1); setViewDate(d); }} className="p-2 hover:bg-gray-50 rounded-lg"><ChevronLeft size={16} /></button>
                         <span className="px-4 text-xs font-bold text-gray-700 uppercase min-w-[120px] text-center">
                             {viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
-                        <button onClick={() => setViewDate(new Date(viewDate.setDate(viewDate.getDate() + 1)))} className="p-2 hover:bg-gray-50 rounded-lg"><ChevronRight size={16} /></button>
+                        <button onClick={() => { const d = new Date(viewDate); d.setDate(d.getDate() + 1); setViewDate(d); }} className="p-2 hover:bg-gray-50 rounded-lg"><ChevronRight size={16} /></button>
                     </div>
                     <button 
                         onClick={handleAssignShift}

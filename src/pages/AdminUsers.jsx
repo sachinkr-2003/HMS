@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import Swal from 'sweetalert2';
 import { Search, UserPlus, Shield, Edit2, Trash2, MoreVertical, Filter, X, Loader2, AlertCircle } from 'lucide-react';
 
@@ -21,12 +21,11 @@ const AdminUsers = () => {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users`);
+            const res = await API.get('/auth/users');
             setUsers(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
-            console.error("User Registry Failure:", err);
-            setUsers([]); // Decommission static registry
+            setUsers([]);
             setLoading(false);
         }
     };
@@ -58,7 +57,7 @@ const AdminUsers = () => {
         try {
             const dataToSubmit = { ...formData, role: formData.role.toLowerCase() };
             if (editingUser) {
-                await axios.put(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users/${editingUser._id}`, dataToSubmit);
+                await API.put(`/auth/users/${editingUser._id}`, dataToSubmit);
                 Swal.fire({
                     icon: 'success',
                     title: 'Credentials Adjusted',
@@ -66,7 +65,7 @@ const AdminUsers = () => {
                     confirmButtonColor: '#2563eb'
                 });
             } else {
-                await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/register`, dataToSubmit);
+                await API.post('/auth/register', dataToSubmit);
                 Swal.fire({
                     icon: 'success',
                     title: 'Access Granted',
@@ -108,7 +107,7 @@ const AdminUsers = () => {
                     Swal.fire('Protocol Violation', 'Primary Admin cannot be terminated.', 'error');
                     return;
                 }
-                await axios.delete(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/auth/users/${id}`);
+                await API.delete(`/auth/users/${id}`);
                 await fetchUsers();
                 Swal.fire('Deleted!', 'User access has been neutralized.', 'success');
             } catch (err) {

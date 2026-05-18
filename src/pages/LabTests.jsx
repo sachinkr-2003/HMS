@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Search, Plus, Microscope, DollarSign, Edit, Trash2, Clock, Filter, Download, X, Loader2 } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 
@@ -19,12 +19,12 @@ const LabTests = () => {
   const fetchTests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/lab`);
-      setTests(res.data);
+      const res = await API.get('/lab');
+      setTests(Array.isArray(res.data) ? res.data : []);
       setLoading(false);
     } catch (err) {
-      console.error("Lab Registry Failure:", err);
-      setTests([]); // Decommission static fallback
+      console.error('Lab Registry Failure:', err);
+      setTests([]);
       setLoading(false);
     }
   };
@@ -54,9 +54,9 @@ const LabTests = () => {
     setIsSubmitting(true);
     try {
       if (editingTest) {
-        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/lab/${editingTest._id}`, formData);
+        await API.put(`/lab/${editingTest._id}`, formData);
       } else {
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/lab`, formData);
+        await API.post('/lab', formData);
       }
       await fetchTests();
       setShowModal(false);
@@ -70,10 +70,10 @@ const LabTests = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Authorize SKU Deletion?")) {
       try {
-        await axios.delete(`https://hms-backend-1-uchi.onrender.com/api/lab/${id}`);
+        await API.delete(`/lab/${id}`);
         await fetchTests();
       } catch (err) {
-        alert("Deletion Authorization Denied.");
+        alert('Deletion Authorization Denied.');
       }
     }
   };

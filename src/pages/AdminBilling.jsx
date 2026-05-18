@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { DollarSign, TrendingUp, ArrowUpRight, Download, Loader2, Sparkles } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -10,7 +10,7 @@ const AdminBilling = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/dashboard/admin-stats`);
+                const res = await API.get('/dashboard/admin-stats');
                 setStats(res.data);
                 setLoading(false);
             } catch (err) {

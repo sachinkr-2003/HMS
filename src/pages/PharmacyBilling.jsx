@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import Swal from 'sweetalert2';
 import { Search, Plus, Trash2, Printer, DollarSign, User, FileText, ShoppingCart, ShieldCheck, Loader2 } from 'lucide-react';
 
@@ -15,19 +15,18 @@ const PharmacyBilling = () => {
   const [showManualForm, setShowManualForm] = useState(false);
   const [manualItem, setManualItem] = useState({ name: '', price: '', qty: 1 });
 
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [medRes, patRes] = await Promise.all([
-          axios.get(`${API_BASE}/pharmacy`),
-          axios.get(`${API_BASE}/patients`)
+          API.get('/pharmacy'),
+          API.get('/patients')
         ]);
-        setMedicines(medRes.data);
-        setPatients(patRes.data);
+        setMedicines(Array.isArray(medRes.data) ? medRes.data : []);
+        setPatients(Array.isArray(patRes.data) ? patRes.data : []);
       } catch (err) {
-        console.error("Fetch failed");
+        console.error('Fetch failed');
       } finally {
         setLoading(false);
       }
@@ -116,7 +115,7 @@ const PharmacyBilling = () => {
         paymentMethod: 'Cash'
       };
 
-      const res = await axios.post(`${API_BASE}/billing`, billData);
+      const res = await API.post('/billing', billData);
       
       Swal.fire({
         icon: 'success',
@@ -126,16 +125,15 @@ const PharmacyBilling = () => {
         showConfirmButton: false
       });
 
-      // Automated Print/Download Trigger
       if (res.data && res.data._id) {
-        window.open(`${API_BASE}/billing-download/${res.data._id}`, '_blank');
+        const BASE = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api','') : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://hms-backend-1-uchi.onrender.com');
+        window.open(`${BASE}/api/billing-download/${res.data._id}`, '_blank');
       }
       
       setBillItems([]);
       setSelectedPatient(null);
-      // Refresh inventory
-      const medRes = await axios.get(`${API_BASE}/pharmacy`);
-      setMedicines(medRes.data);
+      const medRes = await API.get('/pharmacy');
+      setMedicines(Array.isArray(medRes.data) ? medRes.data : []);
     } catch (err) {
       Swal.fire('Error', 'Failed to process transaction', 'error');
     } finally {

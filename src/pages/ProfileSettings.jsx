@@ -4,12 +4,31 @@ import {
     Bell, Shield, ChevronRight, Globe, Fingerprint
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import API from '../api/axios';
+import Swal from 'sweetalert2';
 
 const ProfileSettings = () => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('Personal Profile');
     const [showPassword, setShowPassword] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+
+    const handleUpdatePassword = async () => {
+        if (!currentPassword || !newPassword) {
+            Swal.fire('Warning', 'Please fill all fields', 'warning');
+            return;
+        }
+        try {
+            await API.put('/auth/updatepassword', { currentPassword, newPassword });
+            Swal.fire({ icon: 'success', title: 'Success', text: 'Password updated successfully!', timer: 1500, showConfirmButton: false });
+            setCurrentPassword('');
+            setNewPassword('');
+        } catch (err) {
+            Swal.fire('Error', err.response?.data?.message || 'Failed to update password', 'error');
+        }
+    };
 
     const tabs = [
         { name: 'Personal Profile', icon: User },
@@ -103,6 +122,8 @@ const ProfileSettings = () => {
                                             <input 
                                                 type={showPassword ? 'text' : 'password'} 
                                                 placeholder="••••••••"
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
                                                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded text-xs font-mono outline-none focus:border-blue-500 transition-all" 
                                             />
                                             <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600">
@@ -112,10 +133,19 @@ const ProfileSettings = () => {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">New System Signature</label>
-                                        <input type="password" placeholder="Define entropy secret" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded text-xs font-mono outline-none focus:border-blue-500 transition-all" />
+                                        <input 
+                                            type="password" 
+                                            placeholder="Define entropy secret" 
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded text-xs font-mono outline-none focus:border-blue-500 transition-all" 
+                                        />
                                     </div>
                                 </div>
-                                <button className="px-6 py-2.5 bg-gray-900 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                                <button 
+                                    onClick={handleUpdatePassword}
+                                    className="px-6 py-2.5 bg-gray-900 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95"
+                                >
                                     Authorize Secret Rotation
                                 </button>
                             </div>

@@ -1,10 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Hospital, Shield, Bell, CreditCard, Save, Globe, Smartphone, Lock, Eye, EyeOff, CheckCircle2, ChevronRight, Calendar } from 'lucide-react';
+import API from '../api/axios';
+import Swal from 'sweetalert2';
 
 const AdminSettings = () => {
     const [activeTab, setActiveTab] = useState('Hospital Profile');
     const [showPassword, setShowPassword] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+    const [upiId, setUpiId] = useState('');
+
+    useEffect(() => {
+        fetchHospitalDetails();
+    }, []);
+
+    const fetchHospitalDetails = async () => {
+        try {
+            const res = await API.get('/auth/me');
+            if (res.data?.hospitalId?.upiId) {
+                setUpiId(res.data.hospitalId.upiId);
+            }
+        } catch (err) {
+            console.error("Failed to fetch hospital details");
+        }
+    };
+
+    const handleSaveHospital = async () => {
+        try {
+            await API.put('/auth/hospital', { upiId });
+            Swal.fire({ icon: 'success', title: 'Saved!', text: 'UPI Settings updated.', timer: 1500, showConfirmButton: false });
+        } catch (err) {
+            Swal.fire('Error', 'Failed to update settings', 'error');
+        }
+    };
 
     const tabs = [
         { name: 'Hospital Profile', icon: Hospital },
@@ -148,7 +175,51 @@ const AdminSettings = () => {
                         </div>
                     )}
 
-                    {activeTab !== 'Hospital Profile' && activeTab !== 'Security & Auth' && (
+                    {activeTab === 'Payment Gateways' && (
+                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 animate-in slide-in-from-bottom-2 duration-300">
+                            <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+                                <CreditCard className="text-blue-600" size={20} />
+                                <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest">Payment Gateways & UPI</h2>
+                            </div>
+                            <div className="space-y-5">
+                                <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div className="mb-4">
+                                        <h3 className="text-xs font-bold text-gray-800 uppercase">UPI QR Configuration</h3>
+                                        <p className="text-[10px] text-gray-500 font-medium mt-1">Set your hospital's UPI ID to generate QR codes for patients.</p>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Hospital UPI ID</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="e.g. hospital@upi" 
+                                            value={upiId}
+                                            onChange={(e) => setUpiId(e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-xs font-mono outline-none focus:border-blue-500 transition-all" 
+                                        />
+                                    </div>
+                                    {upiId && (
+                                        <div className="mt-4 flex flex-col items-center gap-2 p-4 bg-white border border-gray-100 rounded-lg shadow-sm">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Live QR Preview</p>
+                                            <img 
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=Hospital&cu=INR`)}&size=150x150`} 
+                                                alt="QR Preview" 
+                                                className="w-32 h-32 border-2 border-dashed p-2 rounded-lg"
+                                            />
+                                            <p className="text-[10px] font-bold text-blue-600">{upiId}</p>
+                                        </div>
+                                    )}
+                                    <button 
+                                        onClick={handleSaveHospital}
+                                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all"
+                                    >
+                                        Save UPI Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab !== 'Hospital Profile' && activeTab !== 'Security & Auth' && activeTab !== 'Payment Gateways' && (
                          <div className="bg-white p-12 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-200">
                             <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-lg mb-4 flex items-center justify-center text-gray-400">
                                 <Settings size={24} />

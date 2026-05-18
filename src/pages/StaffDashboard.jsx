@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import API from '../api/axios';
 import Swal from 'sweetalert2';
 import { 
   UserPlus, 
@@ -29,17 +29,22 @@ const StaffDashboard = () => {
         phone: '',
         gender: '',
         age: '',
-        doctorId: ''
+        doctorId: '',
+        fee: '500',
+        paymentMethod: 'Cash',
+        bp: '',
+        temp: '',
+        weight: ''
     });
+    const [hospital, setHospital] = useState(null);
 
     const fetchData = async () => {
         try {
             // 1. Fetch Doctors
-            const docRes = await axios.get('/doctors');
+            const docRes = await API.get('/doctors');
             setDoctors(docRes.data);
 
-            // 2. Fetch Today's Appointments for the Queue
-            const aptRes = await axios.get('/appointments');
+            const aptRes = await API.get('/appointments');
             const today = new Date().setHours(0,0,0,0);
             const todayApts = aptRes.data.filter(a => new Date(a.appointmentDate).setHours(0,0,0,0) === today);
             
@@ -58,13 +63,293 @@ const StaffDashboard = () => {
         fetchData();
     }, []);
 
+    const printPrescription = (data) => {
+        const printWindow = window.open('', '_blank', 'width=800,height=1000');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Prescription Slip</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+                    body {
+                        font-family: 'Inter', sans-serif;
+                        padding: 0;
+                        margin: 0;
+                        color: #333;
+                        position: relative;
+                        height: 100vh;
+                        overflow: hidden;
+                    }
+                    
+                    /* Green Waves */
+                    .top-wave {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 200px;
+                        height: 100px;
+                        background: #a7f3d0;
+                        border-bottom-right-radius: 100%;
+                        opacity: 0.5;
+                        z-index: -1;
+                    }
+                    .top-wave-2 {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 150px;
+                        height: 70px;
+                        background: #059669;
+                        border-bottom-right-radius: 100%;
+                        z-index: -1;
+                    }
+                    
+                    .bottom-wave {
+                        position: absolute;
+                        bottom: 0;
+                        right: 0;
+                        width: 300px;
+                        height: 150px;
+                        background: #a7f3d0;
+                        border-top-left-radius: 100%;
+                        opacity: 0.5;
+                        z-index: -1;
+                    }
+                    .bottom-wave-2 {
+                        position: absolute;
+                        bottom: 0;
+                        right: 0;
+                        width: 250px;
+                        height: 100px;
+                        background: #059669;
+                        border-top-left-radius: 100%;
+                        z-index: -1;
+                    }
+                    
+                    .content {
+                        padding: 50px 60px;
+                        height: calc(100% - 100px);
+                        display: flex;
+                        flex-direction: column;
+                        position: relative;
+                        z-index: 10;
+                    }
+                    
+                    .header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        margin-top: 20px;
+                    }
+                    
+                    .hospital-info {
+                        text-align: left;
+                    }
+                    .hospital-name {
+                        font-size: 24px;
+                        font-weight: 900;
+                        color: #111827;
+                    }
+                    .hospital-address {
+                        font-size: 10px;
+                        color: #6b7280;
+                        margin-top: 5px;
+                        max-width: 300px;
+                        line-height: 1.4;
+                    }
+                    
+                    .doctor-info {
+                        text-align: right;
+                    }
+                    .doctor-name {
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #111827;
+                    }
+                    .doctor-sub {
+                        font-size: 11px;
+                        color: #4b5563;
+                        margin-top: 2px;
+                    }
+                    
+                    .divider {
+                        border-top: 1px solid #d1d5db;
+                        margin: 15px 0;
+                        position: relative;
+                    }
+                    .divider::after {
+                        content: 'DAY CARE CENTRE';
+                        position: absolute;
+                        right: 0;
+                        top: 5px;
+                        font-size: 9px;
+                        font-weight: 700;
+                        color: #4b5563;
+                    }
+                    
+                    .patient-info {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-top: 20px;
+                        font-size: 13px;
+                    }
+                    
+                    .patient-name-field {
+                        display: flex;
+                        gap: 10px;
+                        width: 60%;
+                        align-items: flex-end;
+                    }
+                    .dots-fill {
+                        border-bottom: 1px dotted #9ca3af;
+                        flex-grow: 1;
+                        height: 1px;
+                    }
+                    
+                    .right-fields {
+                        width: 30%;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+                    .small-field {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                    }
+                    .small-field span:first-child {
+                        font-weight: 500;
+                        color: #4b5563;
+                    }
+                    .small-field span:last-child {
+                        border-bottom: 1px dotted #9ca3af;
+                        width: 120px;
+                        text-align: right;
+                        min-height: 15px;
+                    }
+                    
+                    .rx-symbol {
+                        font-size: 36px;
+                        font-weight: 900;
+                        color: #111827;
+                        margin-top: 30px;
+                        font-style: italic;
+                    }
+                    
+                    .bg-caduceus {
+                        position: absolute;
+                        top: 55%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 450px;
+                        opacity: 0.03;
+                        z-index: -1;
+                    }
+                    
+                    .footer {
+                        margin-top: auto;
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 10px;
+                        color: #6b7280;
+                        border-top: 1px solid #e5e7eb;
+                        padding-top: 10px;
+                        margin-bottom: 20px;
+                    }
+                    
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="top-wave"></div>
+                <div class="top-wave-2"></div>
+                
+                <div class="bottom-wave"></div>
+                <div class="bottom-wave-2"></div>
+                
+                <div class="content">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/Caduceus.svg" class="bg-caduceus" />
+
+                    <div class="header">
+                        <div class="hospital-info">
+                            <div class="hospital-name">${hospital?.name || 'HEALTHREKHA'}</div>
+                            <div class="hospital-address">
+                                No. 4, Address Line 1, Street and Location, Address Line 2,<br/>
+                                City & Pinode, Dist. Phone: #
+                            </div>
+                        </div>
+                        <div class="doctor-info">
+                            <div class="doctor-name">DR. ${data.doctorName.toUpperCase()}</div>
+                            <div class="doctor-sub">M.B.B.S, MD (Gen)</div>
+                            <div class="doctor-sub">Reg No: 000000</div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="patient-info">
+                        <div class="patient-name-field">
+                            <span style="font-weight: 500; color: #4b5563;">Name:</span>
+                            <span style="font-weight: 700; color: #111827;">${data.patientName}</span>
+                            <div class="dots-fill"></div>
+                        </div>
+                        <div class="right-fields">
+                            <div class="small-field">
+                                <span>Date:</span>
+                                <span>${data.date}</span>
+                            </div>
+                            <div class="small-field">
+                                <span>Age / Sex:</span>
+                                <span>${data.age} Y / ${data.gender}</span>
+                            </div>
+                            <div class="small-field">
+                                <span>BP:</span>
+                                <span>${data.bp || ''}</span>
+                            </div>
+                            <div class="small-field">
+                                <span>Temp:</span>
+                                <span>${data.temp || ''}</span>
+                            </div>
+                            <div class="small-field">
+                                <span>Weight:</span>
+                                <span>${data.weight || ''}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rx-symbol">Rx</div>
+
+                    <div style="flex-grow: 1;"></div>
+
+                    <div class="footer">
+                        <div>Please bring this Prescription if coming next time.</div>
+                        <div>Name of Print Desk</div>
+                    </div>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        window.print();
+                        window.onafterprint = function() {
+                            window.close();
+                        };
+                    };
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
     const handleRegister = async (e) => {
         e.preventDefault();
-        if(!formData.firstName || !formData.phone || !formData.doctorId) {
+        if(!formData.firstName || !formData.phone || !formData.doctorId || !formData.age || !formData.gender || !formData.fee) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing Details',
-                text: 'Please fill out all the required fields before submitting.',
+                text: 'Please fill out all the required fields (including Age and Gender) before submitting.',
                 confirmButtonColor: '#2563eb'
             });
             return;
@@ -81,7 +366,7 @@ const StaffDashboard = () => {
             });
 
             // 1. Create Patient
-            const patientRes = await axios.post('/patients', {
+            const patientRes = await API.post('/patients', {
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
                 age: formData.age,
                 gender: formData.gender,
@@ -89,21 +374,78 @@ const StaffDashboard = () => {
             });
 
             // 2. Book Appointment
-            await axios.post('/appointments', {
+            const appointmentRes = await API.post('/appointments', {
                 patientId: patientRes.data._id,
                 doctorId: formData.doctorId,
                 appointmentDate: new Date(),
                 reason: 'Standard Consultation'
             });
 
+            // 3. Create Bill
+            const billRes = await API.post('/billing', {
+                patient: patientRes.data._id,
+                appointment: appointmentRes.data._id,
+                items: [{
+                    description: 'Consultation Fee',
+                    amount: Number(formData.fee)
+                }],
+                totalAmount: Number(formData.fee),
+                paidAmount: Number(formData.fee),
+                status: 'Paid',
+                paymentMethod: formData.paymentMethod
+            });
+
             Swal.fire({
                 icon: 'success',
                 title: 'Patient Added Successfully!',
-                text: `${formData.firstName} has been registered and their appointment is booked.`,
+                text: `${formData.firstName} has been registered, appointment booked, and bill of ₹${formData.fee} generated.`,
                 confirmButtonColor: '#2563eb'
+            }).then(async () => {
+                // Print Prescription Slip
+                printPrescription({
+                    patientName: `${formData.firstName} ${formData.lastName}`,
+                    age: formData.age,
+                    gender: formData.gender,
+                    date: new Date().toLocaleDateString(),
+                    doctorName: doctors.find(d => d._id === formData.doctorId)?.user?.name || 'Doctor',
+                    fee: formData.fee,
+                    bp: formData.bp,
+                    temp: formData.temp,
+                    weight: formData.weight
+                });
+
+                if (formData.paymentMethod === 'Online') {
+                    if (hospital?.upiId) {
+                        const upiUrl = `upi://pay?pa=${hospital.upiId}&pn=${encodeURIComponent(hospital.name)}&am=${formData.fee}&cu=INR`;
+                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(upiUrl)}&size=200x200`;
+                        
+                        await Swal.fire({
+                            title: 'Scan QR to Pay',
+                            html: `
+                                <div class="flex flex-col items-center gap-4 pt-4">
+                                    <p class="text-xs font-bold text-gray-600">Scan this QR code using any UPI app</p>
+                                    <img src="${qrUrl}" alt="UPI QR Code" class="w-48 h-48 border-2 border-dashed p-2 rounded-lg" />
+                                    <div class="text-center">
+                                        <p class="text-xs font-bold text-blue-600">${hospital.upiId}</p>
+                                        <p class="text-sm font-black text-gray-800 mt-1">AMOUNT: ₹${formData.fee}</p>
+                                    </div>
+                                </div>
+                            `,
+                            confirmButtonText: 'I HAVE PAID',
+                            confirmButtonColor: '#10b981'
+                        });
+                    } else {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: 'UPI Not Configured',
+                            text: 'Admin has not set the Hospital UPI ID in Settings. Please ask Admin to set it first.',
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }
+                }
             });
             
-            setFormData({ firstName: '', lastName: '', phone: '', gender: '', age: '', doctorId: '' });
+            setFormData({ firstName: '', lastName: '', phone: '', gender: '', age: '', doctorId: '', fee: '500', paymentMethod: 'Cash' });
             fetchData(); // Refresh list immediately after registration
         } catch (err) {
             Swal.fire({
@@ -217,17 +559,42 @@ const StaffDashboard = () => {
                                     onChange={(e) => setFormData({...formData, age: e.target.value})}
                                 />
                             </div>
+                            
+                            {/* Vitals */}
+                            <div className="grid grid-cols-3 gap-4">
+                                <input 
+                                    type="text" 
+                                    placeholder="BP (e.g. 120/80)" 
+                                    className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 font-mono tracking-tighter" 
+                                    value={formData.bp || ''}
+                                    onChange={(e) => setFormData({...formData, bp: e.target.value})}
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="TEMP (e.g. 98.6)" 
+                                    className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 font-mono tracking-tighter" 
+                                    value={formData.temp || ''}
+                                    onChange={(e) => setFormData({...formData, temp: e.target.value})}
+                                />
+                                <input 
+                                    type="text" 
+                                    placeholder="WEIGHT (KG)" 
+                                    className="bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 font-mono tracking-tighter" 
+                                    value={formData.weight || ''}
+                                    onChange={(e) => setFormData({...formData, weight: e.target.value})}
+                                />
+                            </div>
+
                             <div className="space-y-2">
-                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Assign Doctor for Consultation</label>
+                                <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Assign Doctor</label>
                                 <select 
                                     className="w-full bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 text-gray-700 font-mono tracking-tighter"
                                     value={formData.doctorId}
                                     onChange={(e) => setFormData({...formData, doctorId: e.target.value})}
                                 >
-                                    <option value="">-- CHOOSE TARGET CLINICIAN --</option>
+                                    <option value="">-- CHOOSE CLINICIAN --</option>
                                     {doctors.map((doc) => {
                                         const docName = doc.user?.name || "Clinician";
-                                        // Normalize name: avoid double "DR." if it's already in the database
                                         const displayName = docName.toUpperCase().startsWith('DR.') ? docName.toUpperCase() : `DR. ${docName.toUpperCase()}`;
                                         return (
                                             <option key={doc._id} value={doc._id}>
@@ -236,6 +603,30 @@ const StaffDashboard = () => {
                                         );
                                     })}
                                 </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Consultation Fee (₹)</label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="FEE AMOUNT" 
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 font-mono tracking-tighter" 
+                                        value={formData.fee}
+                                        onChange={(e) => setFormData({...formData, fee: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Payment Method</label>
+                                    <select 
+                                        className="w-full bg-gray-50 border border-gray-100 rounded-lg p-3 text-[10px] font-bold uppercase outline-none focus:border-blue-400 text-gray-700 font-mono tracking-tighter"
+                                        value={formData.paymentMethod}
+                                        onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+                                    >
+                                        <option value="Cash">Cash</option>
+                                        <option value="Online">Online</option>
+                                    </select>
+                                </div>
                             </div>
                             <button type="submit" className="w-full py-4 bg-gray-900 text-white font-bold text-[10px] uppercase tracking-[0.2em] rounded-lg hover:bg-blue-600 transition-all shadow-lg active:scale-[0.98]">
                                 AUTHORIZE REGISTRATION

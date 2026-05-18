@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
   DollarSign, FileText, Clock, CheckCircle, 
   ArrowUpRight, TrendingUp, CreditCard, Plus, Loader2, ArrowRight, ShieldCheck, Filter
@@ -13,11 +13,11 @@ const BillingDashboard = () => {
     useEffect(() => {
         const fetchBills = async () => {
             try {
-                const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/billing');
-                setBills(res.data);
+                const res = await API.get('/billing');
+                setBills(Array.isArray(res.data) ? res.data : []);
                 setLoading(false);
             } catch (err) {
-                console.error("Failed to fetch bills");
+                console.error('Failed to fetch bills');
                 setLoading(false);
             }
         };

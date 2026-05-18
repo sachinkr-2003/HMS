@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Bed, Activity, PieChart, TrendingUp, Search, AlertCircle, CheckCircle, Calendar, Loader2 } from 'lucide-react';
 
 const AdminBeds = () => {
@@ -15,8 +15,15 @@ const AdminBeds = () => {
     const fetchBedStats = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/beds/stats');
-            setStats(res.data);
+            const res = await API.get('/beds');
+            const allBeds = Array.isArray(res.data) ? res.data : [];
+            setStats({
+                total: allBeds.length,
+                occupied: allBeds.filter(b => !b.isAvailable).length,
+                available: allBeds.filter(b => b.isAvailable).length,
+                maintenance: 0,
+                wards: []
+            });
             setLoading(false);
         } catch (err) {
             console.error("Bed Census Failure:", err);

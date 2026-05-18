@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, X, Bot, User, Sparkles, MessageSquare } from 'lucide-react';
+import { Send, X, Bot, Sparkles } from 'lucide-react';
+import API from '../api/axios';
 
 const AIChatbot = ({ isOpen, onClose }) => {
     const [messages, setMessages] = useState([
@@ -10,32 +11,24 @@ const AIChatbot = ({ isOpen, onClose }) => {
     const scrollRef = useRef(null);
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }, [messages]);
 
     const handleSend = async (e) => {
         e.preventDefault();
-        if (!input.trim()) return;
-
-        const userMsg = input;
+        if (!input.trim() || isTyping) return;
+        const userMsg = input.trim();
         setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
         setInput('');
         setIsTyping(true);
-
-        // Simulated AI Logic based on Brochure
-        setTimeout(() => {
-            let response = "I'm analyzing that for you. Based on our clinical database, I suggest checking the department-wise performance in the Reports section.";
-            
-            if (userMsg.toLowerCase().includes('appointment')) response = "I can help you schedule an appointment. Please visit the Appointments module or I can link you to the Doctor Directory.";
-            if (userMsg.toLowerCase().includes('billing') || userMsg.toLowerCase().includes('payment')) response = "Financial records show a 100% GST compliance this month. Total revenue is up by 8%.";
-            if (userMsg.toLowerCase().includes('bed') || userMsg.toLowerCase().includes('occupancy')) response = "Current bed occupancy is at 78%. We have 12 beds available in the General Ward.";
-            if (userMsg.toLowerCase().includes('emergency')) response = "Emergency protocol activated. Red alerts have been dispatched to all duty surgeons.";
-
-            setMessages(prev => [...prev, { role: 'bot', text: response }]);
+        try {
+            const res = await API.post('/ai/chat', { query: userMsg });
+            setMessages(prev => [...prev, { role: 'bot', text: res.data.reply }]);
+        } catch {
+            setMessages(prev => [...prev, { role: 'bot', text: 'AI system is currently unavailable. Please try again later.' }]);
+        } finally {
             setIsTyping(false);
-        }, 1000);
+        }
     };
 
     if (!isOpen) return null;

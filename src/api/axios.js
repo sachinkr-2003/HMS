@@ -30,7 +30,7 @@ API.interceptors.response.use(
 API.interceptors.response.use((res) => {
     if (res.data && typeof res.data === 'object' && !Array.isArray(res.data) && Object.keys(res.data).length > 0) {
         const arrayKey = Object.keys(res.data).find(key => Array.isArray(res.data[key]));
-        if (arrayKey && (res.config.url.includes('/patients') || res.config.url.includes('/users') || res.config.url.includes('/records') || res.config.url.includes('/appointments'))) {
+        if (res.config.method?.toLowerCase() === 'get' && arrayKey && (res.config.url.includes('/patients') || res.config.url.includes('/users') || res.config.url.includes('/records') || res.config.url.includes('/appointments'))) {
             res.data = res.data[arrayKey];
         }
     }

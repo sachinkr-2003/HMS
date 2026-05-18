@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { TrendingUp, Activity, DollarSign, PieChart, ArrowUpRight, Microscope, Download, BarChart2, Loader2 } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 
@@ -15,12 +15,14 @@ const LabAnalytics = () => {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://hms-backend-1-uchi.onrender.com/api/lab/analytics');
-      setStats(res.data);
+      const res = await API.get('/lab');
+      const allTests = Array.isArray(res.data) ? res.data : [];
+      const completed = allTests.filter(t => t.status === 'Completed').length;
+      const pending = allTests.filter(t => t.status === 'Pending').length;
+      setStats({ cumulative: allTests.length, revenue: 0, avgTAT: pending > 0 ? 'Pending' : 'N/A', distribution: [] });
       setLoading(false);
     } catch (err) {
-      console.error("Clinical Intelligence Failure:", err);
-      // Empty state
+      console.error('Clinical Intelligence Failure:', err);
       setStats({ cumulative: 0, revenue: 0, avgTAT: '0 HRS', distribution: [] });
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Search, Plus, Trash2, FileText, Printer, Save, Calculator, Loader2, CheckCircle, User, X } from 'lucide-react';
 
 const BillingCreate = () => {
@@ -31,10 +31,10 @@ const BillingCreate = () => {
     const searchPatients = async () => {
         setIsSearching(true);
         try {
-            const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/patients?search=${searchQuery}`);
-            setPatients(res.data);
+            const res = await API.get(`/patients?search=${searchQuery}`);
+            setPatients(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
-            console.error("Search failed");
+            console.error('Search failed');
         } finally {
             setIsSearching(false);
         }
@@ -66,7 +66,7 @@ const BillingCreate = () => {
                 totalAmount: finalTotal,
                 status: 'Unpaid'
             };
-            const res = await axios.post('https://hms-backend-1-uchi.onrender.com/api/billing', billData);
+            const res = await API.post('/billing', billData);
             setBillSuccess(res.data);
             setIsSaving(false);
         } catch (err) {
@@ -244,7 +244,7 @@ const BillingCreate = () => {
                                 <button 
                                     onClick={async () => {
                                         try {
-                                            const res = await axios.get(`https://hms-backend-1-uchi.onrender.com/api/medical-records/patient/${selectedPatient._id}`);
+                                            const res = await API.get(`/medical-records/patient/${selectedPatient._id}`);
                                             const latestRecord = res.data[0];
                                             if (latestRecord && latestRecord.prescriptions.length > 0) {
                                                 const prescribedItems = latestRecord.prescriptions.map(p => ({
@@ -254,12 +254,12 @@ const BillingCreate = () => {
                                                     price: p.price || 0
                                                 }));
                                                 setItems(prescribedItems);
-                                                alert("Smart Sync: Prescribed medicines pulled into voucher.");
+                                            alert('Smart Sync: Prescribed medicines pulled into voucher.');
                                             } else {
-                                                alert("No pending prescriptions found for this patient.");
+                                            alert('No pending prescriptions found for this patient.');
                                             }
                                         } catch (err) {
-                                            alert("Failed to pull prescriptions.");
+                                            alert('Failed to pull prescriptions.');
                                         }
                                     }}
                                     className="w-full py-2 bg-blue-600/10 text-blue-600 border border-blue-200 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"

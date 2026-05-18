@@ -80,10 +80,9 @@ const AppContent = () => {
           {/* Public Routes */}
           <Route path="/login" element={!user ? <Login /> : <Navigate to={`/${user.role}`} />} />
 
-          {/* Root Redirect */}
           <Route path="/" element={
             <ProtectedRoute>
-              <Navigate to="/admin" />
+              <Navigate to={`/${user?.role || 'login'}`} />
             </ProtectedRoute>
           } />
 

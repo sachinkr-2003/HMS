@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Link } from 'react-router-dom';
 import { Pill, AlertTriangle, TrendingUp, Package, Loader2, DollarSign, Activity, ChevronRight, BarChart2 } from 'lucide-react';
 
@@ -17,28 +17,20 @@ const PharmacyDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy`);
-                const allMeds = Array.isArray(res.data) ? res.data : [];
-                
-                const lowStock = allMeds.filter(m => m?.stock < (m?.minStockLevel || 10));
-                
-                // Fetch Expiring Meds
-                const expiryRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/pharmacy/expiry`);
-                const expData = Array.isArray(expiryRes.data) ? expiryRes.data : [];
-                setExpiringMeds(expData);
-
-                setStats({
-                    totalMedicines: allMeds.length,
-                    lowStockAlerts: lowStock.length,
-                    dailySales: 0,
-                    recentInvoices: 0
-                });
-                setLowStockMeds(lowStock);
-                setLoading(false);
-            } catch (err) {
-                console.error("Pharmacy Sync Failure:", err);
-                setLoading(false);
-            }
+            const res = await API.get('/pharmacy');
+            const allMeds = Array.isArray(res.data) ? res.data : [];
+            const lowStock = allMeds.filter(m => m?.stock < (m?.minStockLevel || 10));
+            const thirtyDays = new Date();
+            thirtyDays.setDate(thirtyDays.getDate() + 30);
+            const expData = allMeds.filter(m => m.expiryDate && new Date(m.expiryDate) <= thirtyDays);
+            setExpiringMeds(expData);
+            setStats({ totalMedicines: allMeds.length, lowStockAlerts: lowStock.length, dailySales: 0, recentInvoices: 0 });
+            setLowStockMeds(lowStock);
+            setLoading(false);
+        } catch (err) {
+            console.error('Pharmacy Sync Failure:', err);
+            setLoading(false);
+        }
         };
         fetchData();
     }, []);

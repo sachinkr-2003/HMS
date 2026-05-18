@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { X, Save, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 
 const AddMedicalRecordModal = ({ appointment, onClose, onSave }) => {
@@ -42,7 +42,7 @@ const AddMedicalRecordModal = ({ appointment, onClose, onSave }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/medical-records`, formData);
+            await API.post('/medical-records', formData);
             onSave();
             onClose();
         } catch (err) {

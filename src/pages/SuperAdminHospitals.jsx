@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Search, Filter, Plus, MoreVertical, Edit, Trash2, Power, Eye, X, Loader2 } from 'lucide-react';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const SuperAdminHospitals = () => {
@@ -27,9 +27,7 @@ const SuperAdminHospitals = () => {
     useEffect(() => {
         const fetchHospitals = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get('http://localhost:5000/api/superadmin/hospitals', config);
+                const { data } = await API.get('/superadmin/hospitals');
                 setHospitals(data.data);
             } catch (error) {
                 console.error("Error fetching hospitals:", error);
@@ -43,9 +41,7 @@ const SuperAdminHospitals = () => {
 
     const toggleStatus = async (id, currentName, currentStatus) => {
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.put(`http://localhost:5000/api/superadmin/hospitals/${id}/toggle`, {}, config);
+            const { data } = await API.put(`/superadmin/hospitals/${id}/toggle`, {});
             
             setHospitals(hospitals.map(h => h._id === id ? { ...h, status: data.data.status } : h));
             Swal.fire('Status Updated', `Hospital ${currentName} is now ${data.data.status}.`, 'success');
@@ -127,9 +123,7 @@ const SuperAdminHospitals = () => {
         setIsSubmitting(true);
         
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.post('http://localhost:5000/api/superadmin/hospitals', formData, config);
+            const { data } = await API.post('/superadmin/hospitals', formData);
             
             setHospitals([data.data, ...hospitals]);
             setIsModalOpen(false);

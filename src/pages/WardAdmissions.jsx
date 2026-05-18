@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
   Search, Plus, UserPlus, Loader2, 
   CheckCircle2, Trash2, Bed as BedIcon
@@ -15,7 +15,6 @@ const WardAdmissions = () => {
     const [selectedBed, setSelectedBed] = useState('');
     const [wardCategory, setWardCategory] = useState('All');
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
     useEffect(() => {
         fetchData();
@@ -24,14 +23,14 @@ const WardAdmissions = () => {
     const fetchData = async () => {
         try {
             const [bedsRes, patientsRes] = await Promise.all([
-                axios.get(`${API_BASE}/beds`),
-                axios.get(`${API_BASE}/patients`)
+                API.get('/beds'),
+                API.get('/patients')
             ]);
-            setBeds(bedsRes.data);
-            setPatients(patientsRes.data);
+            setBeds(Array.isArray(bedsRes.data) ? bedsRes.data : []);
+            setPatients(Array.isArray(patientsRes.data) ? patientsRes.data : []);
             setLoading(false);
         } catch (err) {
-            console.error("Failed to fetch data");
+            console.error('Failed to fetch data');
             setLoading(false);
         }
     };
@@ -42,7 +41,7 @@ const WardAdmissions = () => {
         }
 
         try {
-            await axios.put(`${API_BASE}/beds/${selectedBed}/assign`, {
+            await API.put(`/beds/${selectedBed}/assign`, {
                 patientId: selectedPatient._id
             });
             
@@ -74,7 +73,7 @@ const WardAdmissions = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.put(`${API_BASE}/beds/${id}/discharge`);
+                await API.put(`/beds/${id}/discharge`);
                 fetchData();
                 Swal.fire('Discharged', 'The bed is now available.', 'success');
             } catch (err) {

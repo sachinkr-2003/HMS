@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
     History, User, Activity, FileText, 
     Calendar, ChevronLeft, Loader2, Pill, 
@@ -16,13 +16,13 @@ const PatientHistory = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const pRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/patients/${id}`);
-                const rRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/medical-records/patient/${id}`);
+                const pRes = await API.get(`/patients/${id}`);
+                const rRes = await API.get(`/medical-records/patient/${id}`);
                 setPatient(pRes.data);
-                setRecords(rRes.data);
+                setRecords(Array.isArray(rRes.data) ? rRes.data : []);
                 setLoading(false);
             } catch (err) {
-                console.error("History Fetch Failure");
+                console.error('History Fetch Failure');
                 setLoading(false);
             }
         };

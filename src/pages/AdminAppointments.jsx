@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Search, Calendar, Filter, Clock, MoreVertical, X, Check, Plus, Loader2, AlertCircle, User, Activity } from 'lucide-react';
 
 const AdminAppointments = () => {
@@ -19,8 +19,6 @@ const AdminAppointments = () => {
         reason: ''
     });
 
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://hms-backend-1-uchi.onrender.com/api';
-
     useEffect(() => {
         fetchAppointments();
         fetchPatientsAndDoctors();
@@ -28,12 +26,12 @@ const AdminAppointments = () => {
 
     const fetchAppointments = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments`);
+            const res = await API.get('/appointments');
             setAppointments(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
-            setError("Connection to appointment registry failed.");
-            setAppointments([]); 
+            setError("Failed to load appointments.");
+            setAppointments([]);
             setLoading(false);
         }
     };
@@ -41,22 +39,22 @@ const AdminAppointments = () => {
     const fetchPatientsAndDoctors = async () => {
         try {
             const [pRes, dRes] = await Promise.all([
-                axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/patients`),
-                axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/doctors`)
+                API.get('/patients'),
+                API.get('/doctors')
             ]);
             setPatients(Array.isArray(pRes.data) ? pRes.data : []);
             setDoctors(Array.isArray(dRes.data) ? dRes.data : []);
         } catch (err) {
-            console.error("Failed to fetch registry data");
+            console.error('Failed to fetch registry data');
         }
     };
 
     const handleUpdateStatus = async (id, status) => {
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments/${id}/status`, { status });
-            fetchAppointments(); // Refresh
+            await API.put(`/appointments/${id}/status`, { status });
+            fetchAppointments();
         } catch (err) {
-            console.error("Update failed");
+            console.error('Update failed');
         }
     };
 
@@ -74,7 +72,7 @@ const AdminAppointments = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/appointments`, formData);
+            await API.post('/appointments', { patient: formData.patientId, doctor: formData.doctorId, appointmentDate: formData.appointmentDate, reason: formData.reason });
             await fetchAppointments();
             setShowModal(false);
         } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Search, DollarSign, FileText, CheckCircle, Clock, Download, ExternalLink, CreditCard, Smartphone, ShieldCheck, Loader2 } from 'lucide-react';
 
 const PatientBilling = () => {
@@ -7,12 +7,12 @@ const PatientBilling = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBills = async () => {
+        const fetchBills = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/billing`);
+        const res = await API.get('/billing');
         setBills(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Failed to fetch bills");
+        console.error('Failed to fetch bills');
       } finally {
         setLoading(false);
       }
@@ -22,8 +22,8 @@ const PatientBilling = () => {
 
   const handleDownload = async (id) => {
     try {
-      const BASE = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api');
-      window.open(`${BASE}/billing-download/${id}`, '_blank');
+      const BASE = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://hms-backend-1-uchi.onrender.com');
+      window.open(`${BASE}/api/billing-download/${id}`, '_blank');
     } catch (err) {
       console.error("Download failed");
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { Microscope, Activity, CheckCircle, Clock, Search, TrendingUp, Calendar, Loader2, TestTube, Database } from 'lucide-react';
 
 const AdminLab = () => {
@@ -9,11 +9,11 @@ const AdminLab = () => {
     useEffect(() => {
         const fetchTests = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://hms-backend-1-uchi.onrender.com/api')}/lab`);
+                const res = await API.get('/lab');
                 setTests(Array.isArray(res.data) ? res.data : []);
                 setLoading(false);
             } catch (err) {
-                console.error("Lab Data Sync Failure");
+                console.error('Lab Data Sync Failure');
                 setLoading(false);
             }
         };

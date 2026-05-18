@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api/axios';
 import { 
   Microscope, Clock, CheckCircle, AlertCircle, 
   TrendingUp, Activity, BrainCircuit, ArrowRight,
@@ -19,11 +19,11 @@ const LabDashboard = () => {
 
     const fetchTests = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/lab`);
-            setTests(res.data);
+            const res = await API.get('/lab');
+            setTests(Array.isArray(res.data) ? res.data : []);
             setLoading(false);
         } catch (err) {
-            console.error("Lab Sync Failure");
+            console.error('Lab Sync Failure');
             setLoading(false);
         }
     };
@@ -32,7 +32,7 @@ const LabDashboard = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/lab/${selectedTest._id}`, { result: reportResult });
+            await API.put(`/lab/${selectedTest._id}`, { result: reportResult });
             fetchTests();
             setSelectedTest(null);
             setReportResult('');

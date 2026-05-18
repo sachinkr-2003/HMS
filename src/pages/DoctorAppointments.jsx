@@ -86,17 +86,29 @@ const DoctorAppointments = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    {apt.status !== 'Completed' && (
+                                    <div className="flex items-center gap-2">
                                         <button 
                                             onClick={() => handleStatusChange(apt._id, 'Completed')}
-                                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-[9px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100 flex items-center gap-1.5"
+                                            className={`p-2 rounded-lg transition-all ${apt.status === 'Completed' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}
+                                            title="Complete"
                                         >
-                                            Verify Visit <ArrowRight size={12} />
+                                            <CheckCircle size={16} />
                                         </button>
-                                    )}
-                                    <button className="p-2 text-gray-300 hover:text-gray-600 transition-colors">
-                                        <MoreVertical size={16} />
-                                    </button>
+                                        <button 
+                                            onClick={() => handleStatusChange(apt._id, 'Cancelled')}
+                                            className={`p-2 rounded-lg transition-all ${apt.status === 'Cancelled' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
+                                            title="Reject/Cancel"
+                                        >
+                                            <XCircle size={16} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleStatusChange(apt._id, 'Pending')}
+                                            className={`p-2 rounded-lg transition-all ${apt.status === 'Pending' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'}`}
+                                            title="Set Pending"
+                                        >
+                                            <Clock size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

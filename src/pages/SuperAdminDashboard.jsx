@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Building2, Users, Activity, Settings, Database, ShieldCheck, Server, Search, Plus, MoreVertical, Edit, Power, Download, Clock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import axios from 'axios';
-
-
+import API from '../api/axios';
 
 const mockLogs = [
     { time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), action: 'SYSTEM INITIALIZED', details: 'HealthRekha global control tower is online and actively monitoring network.', status: 'SUCCESS' }
@@ -19,9 +17,7 @@ const SuperAdminDashboard = () => {
     React.useEffect(() => {
         const fetchHospitals = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get('http://localhost:5000/api/superadmin/hospitals', config);
+                const { data } = await API.get('/superadmin/hospitals');
                 setHospitals(data.data);
             } catch (error) {
                 console.error("Error fetching hospitals:", error);
@@ -38,9 +34,7 @@ const SuperAdminDashboard = () => {
 
     const toggleStatus = async (id, currentName) => {
         try {
-            const token = localStorage.getItem('token');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.put(`http://localhost:5000/api/superadmin/hospitals/${id}/toggle`, {}, config);
+            const { data } = await API.put(`/superadmin/hospitals/${id}/toggle`, {});
             
             setHospitals(hospitals.map(h => h._id === id ? { ...h, status: data.data.status } : h));
             Swal.fire('Status Updated', `Hospital ${currentName} is now ${data.data.status}.`, 'success');
