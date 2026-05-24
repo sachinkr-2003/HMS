@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, PieChart, Activity, Users, ArrowUpRight, Bed, Download, ShieldCheck } from 'lucide-react';
+import { TrendingUp, PieChart, Activity, Users, ArrowUpRight, Bed, Download, ShieldCheck, Clock } from 'lucide-react';
 
 const WardAnalytics = () => {
   return (

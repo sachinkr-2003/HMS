@@ -8,8 +8,6 @@ const WardDischarge = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  useEffect(() => { fetchBeds(); }, []);
-
   const fetchBeds = async () => {
     try {
       const res = await API.get('/beds');
@@ -20,6 +18,8 @@ const WardDischarge = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => { fetchBeds(); }, []);
 
   const handleDischarge = async (bed) => {
     const result = await Swal.fire({

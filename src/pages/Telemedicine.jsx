@@ -12,10 +12,6 @@ const Telemedicine = () => {
     const [activeMeeting, setActiveMeeting] = useState(false);
     const [scheduledCalls, setScheduledCalls] = useState([]);
 
-    useEffect(() => {
-        fetchCalls();
-    }, []);
-
     const fetchCalls = async () => {
         try {
             const res = await API.get('/telemedicine');
@@ -25,6 +21,10 @@ const Telemedicine = () => {
             setScheduledCalls([]);
         }
     };
+
+    useEffect(() => {
+        fetchCalls();
+    }, []);
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500 pb-20">

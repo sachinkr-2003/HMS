@@ -14,10 +14,6 @@ const WardBeds = () => {
     const [viewMode, setViewMode] = useState('grid');
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchBeds();
-    }, []);
-
     const fetchBeds = async () => {
         try {
             const res = await API.get('/beds');
@@ -28,6 +24,10 @@ const WardBeds = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchBeds();
+    }, []);
 
     const handleProvision = async () => {
         const { value: formValues } = await Swal.fire({

@@ -16,10 +16,6 @@ const WardAdmissions = () => {
     const [wardCategory, setWardCategory] = useState('All');
 
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     const fetchData = async () => {
         try {
             const [bedsRes, patientsRes] = await Promise.all([
@@ -34,6 +30,10 @@ const WardAdmissions = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleAdmit = async () => {
         if (!selectedPatient || !selectedBed) {
